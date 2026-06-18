@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git 学習アプリ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0d1117;
+    color: #c9d1d9;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 240px;
+    background: #161b22;
+    border-right: 1px solid #30363d;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  #sidebar h1 {
+    font-size: 1rem;
+    padding: 16px;
+    color: #f0f6fc;
+    border-bottom: 1px solid #30363d;
+    letter-spacing: .05em;
+  }
+
+  #sidebar h1 span { color: #f78166; }
+
+  .nav-group { padding: 8px 0; }
+  .nav-group-title {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #8b949e;
+    padding: 6px 16px 4px;
+  }
+
+  .nav-item {
+    display: block;
+    padding: 7px 16px 7px 24px;
+    cursor: pointer;
+    font-size: .875rem;
+    color: #8b949e;
+    transition: background .15s, color .15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: #21262d; color: #c9d1d9; }
+  .nav-item.active { color: #58a6ff; border-left-color: #58a6ff; background: #1c2128; }
+
+  /* ── Main ── */
+  #main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  h2 {
+    font-size: 1.5rem;
+    color: #f0f6fc;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: #8b949e;
+    margin-bottom: 24px;
+    font-size: .9rem;
+  }
+
+  /* Cards */
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+
+  .card h3 {
+    color: #f0f6fc;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card p { font-size: .9rem; line-height: 1.7; color: #8b949e; }
+
+  .tag {
+    font-size: .7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .tag-blue { background: #1f3d5e; color: #58a6ff; }
+  .tag-green { background: #1a3a2a; color: #3fb950; }
+  .tag-orange { background: #3d2010; color: #f0883e; }
+  .tag-red { background: #3d1010; color: #f85149; }
+
+  /* Diagram */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+    font-family: 'Courier New', monospace;
+    font-size: .8rem;
+    white-space: pre;
+    color: #c9d1d9;
+    overflow-x: auto;
+  }
+
+  /* Code block */
+  .code {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-family: 'Courier New', monospace;
+    font-size: .85rem;
+    overflow-x: auto;
+  }
+
+  .code .cmd { color: #79c0ff; }
+  .code .cmt { color: #8b949e; }
+  .code .str { color: #a5d6ff; }
+  .code .flag { color: #ffa657; }
+
+  /* Highlight box */
+  .highlight {
+    border-left: 3px solid #58a6ff;
+    background: #1c2128;
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: .875rem;
+    line-height: 1.6;
+  }
+  .highlight.warn { border-left-color: #f0883e; }
+  .highlight.success { border-left-color: #3fb950; }
+
+  /* Grid */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* ── Simulator ── */
+  #sim-container {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  #sim-toolbar {
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    padding: 8px 16px;
+    font-size: .8rem;
+    color: #8b949e;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  #sim-toolbar span { color: #58a6ff; font-family: monospace; }
+
+  #sim-body {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    height: 460px;
+  }
+
+  #sim-terminal {
+    border-right: 1px solid #30363d;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #sim-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: .8rem;
+    line-height: 1.6;
+  }
+
+  .out-line { margin: 2px 0; }
+  .out-cmd { color: #3fb950; }
+  .out-cmd::before { content: '$ '; color: #8b949e; }
+  .out-ok { color: #c9d1d9; }
+  .out-err { color: #f85149; }
+  .out-info { color: #58a6ff; }
+  .out-dim { color: #8b949e; }
+
+  #sim-input-row {
+    border-top: 1px solid #30363d;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    gap: 8px;
+    font-family: monospace;
+    font-size: .85rem;
+  }
+
+  #sim-input-row span { color: #3fb950; }
+
+  #sim-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f0f6fc;
+    font-family: 'Courier New', monospace;
+    font-size: .85rem;
+  }
+
+  #sim-graph {
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  #sim-graph h4 {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #8b949e;
+    margin-bottom: 12px;
+  }
+
+  .git-graph {
+    font-family: 'Courier New', monospace;
+    font-size: .8rem;
+    line-height: 1.8;
+  }
+
+  .commit-node {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px 0;
+  }
+
+  .commit-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .branch-label {
+    font-size: .7rem;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  .area-boxes {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+    margin-top: 12px;
+  }
+
+  .area-box {
+    background: #1c2128;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: .75rem;
+  }
+
+  .area-box .area-name {
+    color: #8b949e;
+    font-size: .65rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 4px;
+  }
+
+  .file-item {
+    display: inline-block;
+    background: #21262d;
+    border-radius: 3px;
+    padding: 2px 6px;
+    margin: 2px;
+    font-size: .72rem;
+    color: #c9d1d9;
+  }
+  .file-item.staged { color: #3fb950; background: #1a3a2a; }
+  .file-item.modified { color: #f0883e; background: #3d2010; }
+
+  /* ── Quiz ── */
+  #quiz-container { max-width: 680px; }
+
+  .quiz-q {
+    font-size: 1rem;
+    color: #f0f6fc;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .quiz-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: .875rem;
+    transition: background .15s, border-color .15s;
+  }
+  .quiz-option:hover { background: #21262d; border-color: #58a6ff; }
+  .quiz-option.correct { border-color: #3fb950; background: #1a3a2a; color: #3fb950; }
+  .quiz-option.wrong { border-color: #f85149; background: #3d1010; color: #f85149; }
+
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-top: 8px;
+    font-size: .875rem;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #1a3a2a; color: #3fb950; border: 1px solid #3fb950; }
+  .quiz-feedback.wrong { background: #3d1010; color: #f85149; border: 1px solid #f85149; }
+
+  .quiz-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .btn {
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .875rem;
+    border: 1px solid transparent;
+    transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: #238636; color: #fff; border-color: #2ea043; }
+  .btn-secondary { background: transparent; color: #58a6ff; border-color: #58a6ff; }
+
+  .quiz-progress {
+    font-size: .8rem;
+    color: #8b949e;
+  }
+
+  /* Glossary */
+  .glossary-search {
+    width: 100%;
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: .9rem;
+    outline: none;
+    margin-bottom: 20px;
+  }
+  .glossary-search:focus { border-color: #58a6ff; }
+
+  .glossary-item { border-bottom: 1px solid #21262d; padding: 14px 0; }
+  .glossary-item:last-child { border-bottom: none; }
+  .glossary-term { color: #58a6ff; font-weight: 600; font-size: .95rem; margin-bottom: 4px; }
+  .glossary-def { color: #8b949e; font-size: .875rem; line-height: 1.6; }
+  .glossary-alias { color: #f0883e; font-size: .75rem; margin-top: 4px; }
+
+  /* Score */
+  #score-display {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f0f6fc;
+    text-align: center;
+    padding: 24px;
+  }
+
+  /* ── SVG diagrams ── */
+  svg text { font-family: 'Courier New', monospace; }
+</style>
+</head>
+<body>
+
+<!-- ────────────────────────── Sidebar ────────────────────────── -->
+<nav id="sidebar">
+  <h1><span>⎇</span> Git 学習</h1>
+
+  <div class="nav-group">
+    <div class="nav-group-title">基礎</div>
+    <div class="nav-item active" onclick="show('intro')">Git とは？</div>
+    <div class="nav-item" onclick="show('areas')">3つのエリア</div>
+    <div class="nav-item" onclick="show('commit')">コミット</div>
+    <div class="nav-item" onclick="show('branch')">ブランチ</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">操作</div>
+    <div class="nav-item" onclick="show('merge')">マージ</div>
+    <div class="nav-item" onclick="show('rebase')">リベース</div>
+    <div class="nav-item" onclick="show('remote')">リモートとの連携</div>
+    <div class="nav-item" onclick="show('head')">HEAD・参照</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">練習</div>
+    <div class="nav-item" onclick="show('simulator')">コマンドシミュレーター</div>
+    <div class="nav-item" onclick="show('quiz')">クイズ</div>
+    <div class="nav-item" onclick="show('glossary')">用語集</div>
+  </div>
+</nav>
+
+<!-- ────────────────────────── Main ────────────────────────── -->
+<main id="main">
+
+  <!-- ===== INTRO ===== -->
+  <div class="page active" id="page-intro">
+    <h2>Git とは？</h2>
+    <p class="subtitle">バージョン管理システムの基本概念</p>
+
+    <div class="card">
+      <h3><span class="tag tag-blue">VCS</span> バージョン管理システム</h3>
+      <p>Git は<strong style="color:#f0f6fc">分散型バージョン管理システム (DVCS)</strong> です。
+        ファイルの変更履歴を記録・追跡し、過去の状態に戻したり、複数人での並行作業を管理したりできます。</p>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>中央集権型 (SVN など)</h3>
+        <div class="diagram">  [開発者A] ─┐
+  [開発者B] ─┼─▶ [中央サーバー]
+  [開発者C] ─┘
+  履歴はサーバーだけに存在</div>
+        <p>サーバーが落ちると作業できない。履歴の参照にもネットワークが必要。</p>
+      </div>
+      <div class="card">
+        <h3>分散型 (Git)</h3>
+        <div class="diagram">  [開発者A] ◀──▶ [リモート]
+      ↕               ↕
+  [開発者B] ◀──▶ [開発者C]
+  全員が完全な履歴を持つ</div>
+        <p>オフラインでも作業可能。リモートがなくてもローカルで完結する。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Git が管理するもの</h3>
+      <p>Git はファイルの<strong style="color:#f0f6fc">スナップショット</strong>を保存します。変更差分ではなく、コミット時点のファイル全体の状態（スナップショット）をリポジトリに記録します。</p>
+      <div class="diagram">コミット1  コミット2  コミット3
+   │          │          │
+   ▼          ▼          ▼
+ [A=1]      [A=1]      [A=3]   ← Aが変更
+ [B=2]      [B=5]      [B=5]   ← Bが変更
+ [C=3]      [C=3]      [C=3]   変更なし→前を参照</div>
+    </div>
+
+    <div class="highlight">
+      <strong>リポジトリ (repository / repo)</strong>とは、Git がプロジェクトの全履歴を保存しているデータベースのことです。
+      ローカルの <code>.git/</code> フォルダがそれにあたります。
+    </div>
+  </div>
+
+  <!-- ===== AREAS ===== -->
+  <div class="page" id="page-areas">
+    <h2>3つのエリア</h2>
+    <p class="subtitle">Git の最重要概念 — ファイルはどこにいるのか</p>
+
+    <div class="card">
+      <h3>Gitの3エリアとその流れ</h3>
+      <div class="diagram">
+ ┌─────────────────┐   git add    ┌───────────────┐   git commit   ┌───────────────┐
+ │  作業ツリー      │ ──────────▶ │ ステージング   │ ─────────────▶ │  リポジトリ    │
+ │ Working Tree    │             │ Staging Area  │                │  Repository   │
+ │                 │             │  (Index)      │                │  (.git/)      │
+ │ 実際に編集する   │             │ 次のコミットに │                │  コミット履歴  │
+ │ ファイル群       │ ◀────────── │ 含める変更を  │                │  が保存される  │
+ │                 │  git restore │  一時保管     │                │               │
+ └─────────────────┘             └───────────────┘                └───────────────┘
+        ▲                                                                  │
+        └──────────────────────── git checkout / restore ─────────────────┘</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3><span class="tag tag-orange">1</span> 作業ツリー (Working Tree)</h3>
+        <p>実際に編集しているファイルが存在する場所。エディタで変更を加えるとここが変わります。
+          Git はこのエリアの変更を自動的には記録しません。</p>
+        <div class="code">
+<span class="cmd">git status</span>          <span class="cmt"># 状態確認</span>
+<span class="cmt"># → "modified: app.js" と表示される</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="tag tag-blue">2</span> ステージングエリア (Index)</h3>
+        <p>「次のコミットに含めたい変更」を一時的に登録する場所。
+          複数のファイルを変更しても、<em>選んで</em>コミットできます。</p>
+        <div class="code">
+<span class="cmd">git add</span> <span class="str">app.js</span>      <span class="cmt"># 特定ファイル</span>
+<span class="cmd">git add</span> <span class="flag">-p</span>          <span class="cmt"># 変更を部分選択</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag tag-green">3</span> リポジトリ (.git/)</h3>
+      <p>コミットされた履歴が永続的に保存される場所。<code>git commit</code> を実行すると、
+        ステージングエリアの内容が新しいコミットとしてリポジトリに追加されます。</p>
+    </div>
+
+    <div class="highlight warn">
+      <strong>よくある混乱：</strong> ファイルを保存しただけではGitは何も記録しません。
+      <code>git add</code> → <code>git commit</code> の2ステップが必要です。
+    </div>
+
+    <div class="card">
+      <h3>ファイルのライフサイクル</h3>
+      <div class="diagram">
+         Untracked ──── git add ────▶ Staged ──── git commit ────▶ Unmodified
+              ▲                                                          │
+              │ git rm                                             ファイル編集
+              │                                                          │
+              └───── Untracked ◀── git restore ◀── Modified ◀───────────┘</div>
+      <p style="margin-top:8px">
+        <strong style="color:#f0f6fc">Untracked</strong>: Gitが管理していない新規ファイル<br>
+        <strong style="color:#f0f6fc">Staged</strong>: ステージ済み（次のコミット対象）<br>
+        <strong style="color:#f0f6fc">Unmodified</strong>: コミット済みで変更なし<br>
+        <strong style="color:#f0f6fc">Modified</strong>: コミット済みだが変更あり
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== COMMIT ===== -->
+  <div class="page" id="page-commit">
+    <h2>コミット (Commit)</h2>
+    <p class="subtitle">変更のスナップショットと履歴の構造</p>
+
+    <div class="card">
+      <h3>コミットとは</h3>
+      <p>コミットはプロジェクトの<strong style="color:#f0f6fc">ある時点のスナップショット</strong>です。
+        各コミットは固有の<strong style="color:#f0f6fc">SHA-1ハッシュ</strong>（例: <code style="color:#ffa657">a3f1b2c</code>）を持ちます。</p>
+      <div class="diagram">
+ コミットの中身:
+ ┌──────────────────────────────────────┐
+ │  hash    : a3f1b2c9d4e8...           │
+ │  author  : Alice &lt;alice@example.com&gt;  │
+ │  date    : 2024-01-15 10:30:00       │
+ │  message : "ログイン機能を追加"        │
+ │  parent  : 7e2c4a1... (前のコミット)  │
+ │  tree    : &lt;ファイルのスナップショット&gt; │
+ └──────────────────────────────────────┘</div>
+    </div>
+
+    <div class="card">
+      <h3>コミット履歴はリンクリスト</h3>
+      <div class="diagram">
+ 古い  ←─────────────────────────────────  新しい
+
+  [c1: 初期] ←── [c2: 修正] ←── [c3: 追加] ←── [c4: リファクタ]
+                                                        ▲
+                                                      HEAD
+                                                   (現在地点)</div>
+      <p>各コミットは<strong style="color:#f0f6fc">親コミットへの参照</strong>を持ちます。これにより「どこから変更が加えられたか」を追跡できます。</p>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>基本コマンド</h3>
+        <div class="code">
+<span class="cmd">git add</span> <span class="str">.</span>            <span class="cmt"># 全変更をステージ</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"メッセージ"</span>
+<span class="cmd">git commit</span> <span class="flag">-am</span> <span class="str">"追跡済みを一括"</span>
+<span class="cmd">git log</span>              <span class="cmt"># 履歴を見る</span>
+<span class="cmd">git log</span> <span class="flag">--oneline</span>    <span class="cmt"># 1行表示</span>
+<span class="cmd">git show</span> <span class="str">a3f1b2c</span>     <span class="cmt"># 特定コミット確認</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>良いコミットメッセージ</h3>
+        <div class="code">
+<span class="cmt"># ✅ 良い例</span>
+<span class="str">"ユーザー認証にJWTトークンを追加"</span>
+<span class="str">"fix: パスワードリセット時のバグ修正"</span>
+<span class="str">"docs: READMEにセットアップ手順を追加"</span>
+
+<span class="cmt"># ❌ 悪い例</span>
+<span class="str">"修正"</span>
+<span class="str">"wip"</span>
+<span class="str">"いろいろ変えた"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight success">
+      <strong>ベストプラクティス：</strong>
+      1つのコミットには1つの目的の変更だけ含めましょう。「ログイン機能を追加 + デザイン変更 + バグ修正」を1コミットにまとめるのは避けましょう。
+    </div>
+  </div>
+
+  <!-- ===== BRANCH ===== -->
+  <div class="page" id="page-branch">
+    <h2>ブランチ (Branch)</h2>
+    <p class="subtitle">開発の流れを分岐させる仕組み</p>
+
+    <div class="card">
+      <h3>ブランチとは</h3>
+      <p>ブランチは<strong style="color:#f0f6fc">特定のコミットを指す軽量なポインタ</strong>です。
+        新機能の開発やバグ修正を <code>main</code> ブランチに影響なく進められます。</p>
+      <div class="diagram">
+                          feature/login
+                               ▼
+  main: [c1] ←── [c2] ←── [c3] ←── [c5]  ← 新機能コミット
+                    └────────── [c4] ←── [c6]  ← バグ修正
+                               ▲
+                          fix/bug-123</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>ブランチの操作</h3>
+        <div class="code">
+<span class="cmd">git branch</span>               <span class="cmt"># 一覧</span>
+<span class="cmd">git branch</span> <span class="str">feature/x</span>   <span class="cmt"># 作成</span>
+<span class="cmd">git switch</span> <span class="str">feature/x</span>   <span class="cmt"># 移動</span>
+<span class="cmd">git switch</span> <span class="flag">-c</span> <span class="str">feature/x</span> <span class="cmt"># 作成+移動</span>
+<span class="cmd">git branch</span> <span class="flag">-d</span> <span class="str">feature/x</span> <span class="cmt"># 削除</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>ブランチの命名規則（例）</h3>
+        <div class="code">
+<span class="str">main</span>            <span class="cmt"># 本番環境</span>
+<span class="str">develop</span>         <span class="cmt"># 開発統合ブランチ</span>
+<span class="str">feature/login</span>   <span class="cmt"># 新機能</span>
+<span class="str">fix/issue-42</span>    <span class="cmt"># バグ修正</span>
+<span class="str">hotfix/security</span> <span class="cmt"># 緊急修正</span>
+<span class="str">release/v1.2</span>    <span class="cmt"># リリース準備</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Git Flow（代表的なブランチ戦略）</h3>
+      <div class="diagram">
+ main    ●────────────────────────────────────────●  本番リリース
+          \                                      /
+ develop   ●──────────●──────────────────────●──  開発統合
+            \        / \                    /
+ feature     ●──────●   ●──────────────────●      機能開発
+                          \              /
+ release                   ●────────────●          リリース準備
+                                  \
+ hotfix                            ●──●            緊急修正</div>
+    </div>
+
+    <div class="highlight">
+      ブランチの切り替え (<code>git switch</code>) は非常に高速です。
+      Git はファイルをコピーするのではなく、HEADポインタを変更するだけだからです。
+    </div>
+  </div>
+
+  <!-- ===== MERGE ===== -->
+  <div class="page" id="page-merge">
+    <h2>マージ (Merge)</h2>
+    <p class="subtitle">ブランチの変更を統合する方法</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3><span class="tag tag-green">FF</span> Fast-Forward マージ</h3>
+        <div class="diagram">
+ マージ前:
+  main: [c1] ←── [c2]
+                   └── [c3] ←── [c4]
+                               ▲ feature
+
+ マージ後 (ff):
+  main: [c1] ←── [c2] ←── [c3] ←── [c4]
+                                        ▲ main, feature</div>
+        <p>枝分かれがない場合、mainポインタを前に進めるだけ。
+          マージコミットは<strong style="color:#f0f6fc">作成されません</strong>。</p>
+      </div>
+      <div class="card">
+        <h3><span class="tag tag-blue">3-way</span> No-FF マージ</h3>
+        <div class="diagram">
+ マージ前:
+  main:    [c1] ←── [c2] ←── [c5]
+                      └── [c3] ←── [c4]
+                                    ▲ feature
+
+ マージ後:
+  main:    [c1] ←── [c2] ←── [c5] ←── [c6★]
+                      └── [c3] ←── [c4] ───┘
+                              マージコミット</div>
+        <p>3つのコミット（共通祖先・各ブランチ先端）を使って統合。
+          マージコミットが<strong style="color:#f0f6fc">作成されます</strong>。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>マージのコマンド</h3>
+      <div class="code">
+<span class="cmd">git switch</span> <span class="str">main</span>             <span class="cmt"># 統合先に移動</span>
+<span class="cmd">git merge</span> <span class="str">feature/login</span>   <span class="cmt"># ブランチを統合</span>
+<span class="cmd">git merge</span> <span class="flag">--no-ff</span> <span class="str">feature/login</span>  <span class="cmt"># 必ずマージコミット作成</span>
+<span class="cmd">git merge</span> <span class="flag">--abort</span>         <span class="cmt"># コンフリクト時に中断</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>コンフリクト (Conflict) の解決</h3>
+      <p>同じ行を異なるブランチで編集するとコンフリクトが発生します。</p>
+      <div class="diagram">
+ ファイル内にコンフリクトマーカーが挿入される:
+ ┌─────────────────────────────────────┐
+ │ &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (現在のブランチ)        │
+ │ console.log("ようこそ！");            │
+ │ =======                             │
+ │ console.log("Welcome!");            │
+ │ &gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/i18n (統合するブランチ) │
+ └─────────────────────────────────────┘</div>
+      <div class="code">
+<span class="cmt"># 解決手順:</span>
+<span class="cmt"># 1. エディタでマーカーを含む行を手動で編集</span>
+<span class="cmd">git add</span> <span class="str">conflicted-file.js</span>   <span class="cmt"># 2. 解決済みとしてマーク</span>
+<span class="cmd">git commit</span>                    <span class="cmt"># 3. マージコミットを完了</span>
+      </div>
+    </div>
+
+    <div class="highlight warn">
+      コンフリクトは怖くありません。Git がどちらの変更を残すべきか判断できないだけです。
+      マーカー行を消して正しい内容にするだけで解決できます。
+    </div>
+  </div>
+
+  <!-- ===== REBASE ===== -->
+  <div class="page" id="page-rebase">
+    <h2>リベース (Rebase)</h2>
+    <p class="subtitle">コミット履歴を書き換えてきれいにする</p>
+
+    <div class="card">
+      <h3>リベースとは</h3>
+      <p>ブランチのコミットを別のコミットの上に<strong style="color:#f0f6fc">付け替える</strong>操作です。
+        マージとは異なり、コミット履歴が一直線になります。</p>
+      <div class="diagram">
+ リベース前:
+  main:    [A] ←── [B] ←── [C]
+                 └── [D] ←── [E]
+                              ▲ feature
+
+ git rebase main (featureブランチで実行):
+  main:    [A] ←── [B] ←── [C]
+                              └── [D'] ←── [E']
+                                               ▲ feature
+  ※ D', E' は D, E の内容は同じだがハッシュが変わる</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>マージとの比較</h3>
+        <div class="diagram">
+ マージ:
+  A ← B ← C ← M  (マージコミット)
+           ↑  ↗
+           D ← E
+
+ リベース:
+  A ← B ← C ← D' ← E'
+  履歴が一直線でクリーン</div>
+      </div>
+      <div class="card">
+        <h3>コマンド</h3>
+        <div class="code">
+<span class="cmd">git switch</span> <span class="str">feature</span>
+<span class="cmd">git rebase</span> <span class="str">main</span>     <span class="cmt"># mainの上に付け替え</span>
+
+<span class="cmt"># インタラクティブリベース</span>
+<span class="cmd">git rebase</span> <span class="flag">-i</span> <span class="str">HEAD~3</span>  <span class="cmt"># 直近3コミットを整理</span>
+
+<span class="cmt"># コンフリクト時</span>
+<span class="cmd">git rebase</span> <span class="flag">--continue</span>
+<span class="cmd">git rebase</span> <span class="flag">--abort</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>インタラクティブリベースで履歴を整理</h3>
+      <div class="code">
+<span class="cmd">git rebase</span> <span class="flag">-i</span> <span class="str">HEAD~4</span>  <span class="cmt"># エディタが開く</span>
+
+<span class="cmt"># エディタ内での操作:</span>
+<span class="str">pick</span>   a3f1b2c  機能Aを追加
+<span class="str">squash</span> 7e2c4a1  機能Aの修正   <span class="cmt"># ↑と1つにまとめる</span>
+<span class="str">reword</span> 9b8d3f2  誤字修正       <span class="cmt"># メッセージを書き直す</span>
+<span class="str">drop</span>   c4a1e5d  不要なコミット  <span class="cmt"># 削除する</span>
+      </div>
+    </div>
+
+    <div class="highlight warn">
+      <strong>黄金律：</strong> すでにリモートに <code>push</code> したコミットをリベースしてはいけません。
+      他の開発者の履歴と矛盾が生じます。リベースはローカルのみ、または自分だけが使うブランチに限定しましょう。
+    </div>
+  </div>
+
+  <!-- ===== REMOTE ===== -->
+  <div class="page" id="page-remote">
+    <h2>リモートとの連携</h2>
+    <p class="subtitle">GitHub などのリモートリポジトリと同期する</p>
+
+    <div class="card">
+      <h3>リモートリポジトリの概念</h3>
+      <div class="diagram">
+  ローカル                           リモート (GitHub等)
+  ─────────────────                  ─────────────────
+  main          ──── git push ────▶  origin/main
+  feature       ──── git push ────▶  origin/feature
+                ◀─── git fetch ───   origin/*
+  ローカルのorigin/* は                サーバー上の
+  リモートの状態の"鏡"                  実際のブランチ</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>主なコマンド</h3>
+        <div class="code">
+<span class="cmt"># リモートを登録</span>
+<span class="cmd">git remote add</span> <span class="str">origin</span> <span class="str">&lt;URL&gt;</span>
+
+<span class="cmt"># 変更を送信</span>
+<span class="cmd">git push</span> <span class="str">origin main</span>
+<span class="cmd">git push</span> <span class="flag">-u</span> <span class="str">origin feature</span>
+
+<span class="cmt"># リモートの情報を取得</span>
+<span class="cmd">git fetch</span> <span class="str">origin</span>
+<span class="cmd">git pull</span> <span class="str">origin main</span>
+
+<span class="cmt"># リポジトリをコピー</span>
+<span class="cmd">git clone</span> <span class="str">&lt;URL&gt;</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>fetch vs pull</h3>
+        <div class="diagram">
+ git fetch:
+  リモートの変更を取得するが
+  作業ツリーは変更しない
+  origin/main だけ更新
+
+ git pull:
+  fetch + merge を実行
+  = git fetch && git merge
+  作業ツリーが更新される</div>
+        <p style="margin-top:8px">安全なのは <code>fetch</code> して内容を確認してから <code>merge</code> する方法です。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>clone の仕組み</h3>
+      <div class="diagram">
+ git clone https://github.com/user/repo.git
+
+ 実行されること:
+  1. .git/ ディレクトリ（リポジトリ全体）をコピー
+  2. origin という名前でリモートURLを登録
+  3. デフォルトブランチ（main）をチェックアウト
+  4. origin/main などのリモート追跡ブランチを設定</div>
+    </div>
+
+    <div class="card">
+      <h3>上流ブランチ (upstream / tracking branch)</h3>
+      <p>ローカルブランチとリモートブランチを紐付けることで、<code>git push</code>/<code>git pull</code> を引数なしで使えます。</p>
+      <div class="code">
+<span class="cmd">git push</span> <span class="flag">-u</span> <span class="str">origin main</span>   <span class="cmt"># -u で上流を設定</span>
+<span class="cmt"># 以降は git push だけで OK</span>
+
+<span class="cmd">git branch</span> <span class="flag">-vv</span>             <span class="cmt"># 上流ブランチを確認</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HEAD ===== -->
+  <div class="page" id="page-head">
+    <h2>HEAD・参照</h2>
+    <p class="subtitle">Git がどこを「現在地」と認識しているか</p>
+
+    <div class="card">
+      <h3>HEAD とは</h3>
+      <p>HEAD は「<strong style="color:#f0f6fc">現在チェックアウトしているコミット</strong>」を指すポインタです。
+        通常はブランチを指し、ブランチがコミットを指します。</p>
+      <div class="diagram">
+  HEAD ──▶ main ──▶ [c4: 最新コミット]
+                    ↑
+                 ここが現在地</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>通常状態</h3>
+        <div class="diagram">
+ HEAD → main → c4
+
+ git commit すると:
+ HEAD → main → c5 (新コミット)
+ ブランチも自動で前進する</div>
+      </div>
+      <div class="card">
+        <h3>Detached HEAD</h3>
+        <div class="diagram">
+ git checkout a3f1b2c (古いコミット)
+
+ HEAD → a3f1b2c  ← ブランチを経由しない！
+ この状態でコミットしても
+ ブランチが更新されない</div>
+        <p style="margin-top:8px">過去の状態を<em>見る</em>だけなら問題なし。作業するならブランチを作成しましょう。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>相対参照</h3>
+      <p>ハッシュを覚えなくてもコミットを参照できます。</p>
+      <div class="code">
+<span class="str">HEAD</span>      <span class="cmt"># 現在のコミット</span>
+<span class="str">HEAD~1</span>    <span class="cmt"># 1つ前のコミット (HEAD^ と同じ)</span>
+<span class="str">HEAD~3</span>    <span class="cmt"># 3つ前のコミット</span>
+<span class="str">main~2</span>    <span class="cmt"># mainの2つ前</span>
+
+<span class="cmt"># 使用例</span>
+<span class="cmd">git show</span> <span class="str">HEAD~1</span>         <span class="cmt"># 1つ前を確認</span>
+<span class="cmd">git diff</span> <span class="str">HEAD~2</span> <span class="str">HEAD</span>   <span class="cmt"># 2コミット分の差分</span>
+<span class="cmd">git reset</span> <span class="str">HEAD~1</span>        <span class="cmt"># 直前のコミットを取り消し</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>タグ (Tag)</h3>
+      <p>タグは特定のコミットに付ける<strong style="color:#f0f6fc">名前付きの永続的ポインタ</strong>です。リリースバージョンの管理によく使います。</p>
+      <div class="code">
+<span class="cmd">git tag</span> <span class="str">v1.0.0</span>               <span class="cmt"># 軽量タグ</span>
+<span class="cmd">git tag</span> <span class="flag">-a</span> <span class="str">v1.0.0</span> <span class="flag">-m</span> <span class="str">"リリース"</span>  <span class="cmt"># 注釈付きタグ</span>
+<span class="cmd">git push</span> <span class="str">origin</span> <span class="flag">--tags</span>       <span class="cmt"># タグをプッシュ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SIMULATOR ===== -->
+  <div class="page" id="page-simulator">
+    <h2>コマンドシミュレーター</h2>
+    <p class="subtitle">実際にGitコマンドを試して動作を確認しよう</p>
+
+    <div id="sim-container">
+      <div id="sim-toolbar">
+        シミュレーター — ブランチ: <span id="sim-branch-label">main</span>
+        &nbsp;|&nbsp; ヒント: <code>help</code> と入力するとコマンド一覧が表示されます
+      </div>
+      <div id="sim-body">
+        <div id="sim-terminal">
+          <div id="sim-output"></div>
+          <div id="sim-input-row">
+            <span>$</span>
+            <input type="text" id="sim-input" placeholder="git コマンドを入力..." autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div id="sim-graph">
+          <h4>状態ビュー</h4>
+          <div class="git-graph" id="sim-tree"></div>
+          <div class="area-boxes">
+            <div class="area-box">
+              <div class="area-name">Staging Area</div>
+              <div id="sim-staged-list"><span style="color:#8b949e;font-size:.72rem">空</span></div>
+            </div>
+            <div class="area-box">
+              <div class="area-name">Working Tree (変更あり)</div>
+              <div id="sim-modified-list"><span style="color:#8b949e;font-size:.72rem">空</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== QUIZ ===== -->
+  <div class="page" id="page-quiz">
+    <h2>クイズ</h2>
+    <p class="subtitle">理解度チェック — 全 <span id="quiz-total">0</span> 問</p>
+
+    <div id="quiz-container">
+      <div id="quiz-score-bar" style="margin-bottom:16px;font-size:.875rem;color:#8b949e"></div>
+      <div class="card">
+        <div class="quiz-q" id="quiz-question"></div>
+        <div id="quiz-options"></div>
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+        <div class="quiz-nav">
+          <button class="btn btn-primary" id="quiz-next" onclick="quizNext()" style="display:none">次の問題 →</button>
+          <div class="quiz-progress" id="quiz-progress"></div>
+        </div>
+      </div>
+      <div id="quiz-result" style="display:none">
+        <div class="card">
+          <h3>クイズ終了！</h3>
+          <div id="score-display"></div>
+          <button class="btn btn-secondary" onclick="quizRestart()">もう一度</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GLOSSARY ===== -->
+  <div class="page" id="page-glossary">
+    <h2>用語集</h2>
+    <p class="subtitle">Git の主要用語をまとめて確認</p>
+    <input class="glossary-search" type="text" id="glossary-search" placeholder="用語を検索..." oninput="filterGlossary()">
+    <div id="glossary-list"></div>
+  </div>
+
+</main>
+
+<script>
+// ──────────────────────────────────────────────
+// Navigation
+// ──────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'quiz' && quizState.current === 0) quizStart();
+  if (id === 'glossary') renderGlossary();
+  if (id === 'simulator') initSim();
+}
+
+// ──────────────────────────────────────────────
+// Quiz
+// ──────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    q: "Gitの「ステージングエリア」の役割として正しいものはどれですか？",
+    opts: ["ファイルを削除する場所", "次のコミットに含める変更を一時登録する場所", "リモートリポジトリとの同期場所", "ブランチの作成場所"],
+    ans: 1,
+    exp: "ステージングエリア（Index）は git add で変更を登録し、次の git commit に含める変更を選択する中間バッファです。"
+  },
+  {
+    q: "git fetch と git pull の違いとして正しいのはどれですか？",
+    opts: [
+      "git fetch はリモートのブランチを削除する",
+      "git pull は変更を取得するが作業ツリーには反映しない",
+      "git fetch はリモートの情報を取得するが作業ツリーを変更しない",
+      "違いはなく、同じ動作をする"
+    ],
+    ans: 2,
+    exp: "git fetch はリモートのコミット情報を取得してorigin/*を更新しますが、ローカルの作業ツリーは変更しません。git pull は fetch + merge を実行するため、作業ツリーが更新されます。"
+  },
+  {
+    q: "以下のうち「Detached HEAD」状態の説明として正しいのはどれですか？",
+    opts: [
+      "HEADがブランチではなく特定のコミットを直接指している状態",
+      "リモートブランチとローカルブランチが切り離された状態",
+      "コンフリクトが発生してコミットできない状態",
+      "ブランチを削除した後の状態"
+    ],
+    ans: 0,
+    exp: "Detached HEADとはHEADがブランチを経由せず、特定のコミットを直接指している状態です。git checkout <ハッシュ> で発生します。この状態でコミットしてもブランチが更新されず、ブランチを作成しない限り参照が失われる可能性があります。"
+  },
+  {
+    q: "git rebase の「黄金律」として正しいのはどれですか？",
+    opts: [
+      "リベースは必ずmainブランチで実行する",
+      "すでにリモートにpushしたコミットをリベースしてはいけない",
+      "リベース前に必ずタグを付ける",
+      "リベースはマージの後に必ず実行する"
+    ],
+    ans: 1,
+    exp: "リモートにpush済みのコミットをリベースすると、他の開発者の履歴と矛盾が生じます。リベースはコミット履歴を書き換えるため、共有済みの履歴には使わないのが鉄則です。"
+  },
+  {
+    q: "コミットハッシュ（例: a3f1b2c）の説明として正しいのはどれですか？",
+    opts: [
+      "コミットの順番を示す連番",
+      "コミット内容から生成されたSHA-1ハッシュで全コミットで一意",
+      "ブランチ名をエンコードしたもの",
+      "コミット日時をUnixタイムスタンプに変換したもの"
+    ],
+    ans: 1,
+    exp: "GitのコミットIDはSHA-1アルゴリズムで生成された40文字の16進数ハッシュです。コミットの内容（ツリー、親、メッセージ、日時、著者）から計算されるため、全コミットで一意になります。"
+  },
+  {
+    q: "git merge --no-ff の効果として正しいのはどれですか？",
+    opts: [
+      "Fast-forwardマージを強制する",
+      "コンフリクトを自動解決する",
+      "Fast-forwardが可能な場合でもマージコミットを作成する",
+      "ブランチを削除してからマージする"
+    ],
+    ans: 2,
+    exp: "--no-ff フラグを使うと、Fast-forwardが可能な場合でも必ずマージコミットを作成します。これによりブランチが存在したことが履歴に記録され、後から確認しやすくなります。"
+  },
+  {
+    q: "git stash の用途として正しいのはどれですか？",
+    opts: [
+      "コミット履歴を削除する",
+      "未コミットの変更を一時退避させる",
+      "リモートブランチを保存する",
+      "コンフリクトを解決する"
+    ],
+    ans: 1,
+    exp: "git stash は作業中の未コミット変更を一時的に退避（スタック）させ、作業ツリーをクリーンな状態に戻します。別のブランチに急いで切り替えたい場合などに便利です。git stash pop で戻せます。"
+  },
+  {
+    q: "ブランチとは何ですか？",
+    opts: [
+      "ファイルのコピーが保存されるフォルダ",
+      "特定のコミットを指す軽量なポインタ",
+      "リモートリポジトリへの接続情報",
+      "コミットメッセージのテンプレート"
+    ],
+    ans: 1,
+    exp: "Gitのブランチは特定のコミットを指す軽量なポインタ（参照）です。実体はコミットハッシュを保存した40バイト程度のファイルであり、作成・切り替えが非常に高速です。"
+  },
+  {
+    q: "「origin」とは何ですか？",
+    opts: [
+      "Gitの最初のコミットの名前",
+      "デフォルトのブランチ名",
+      "git clone 時に自動登録されるリモートの標準的なエイリアス名",
+      "Gitのバージョン番号"
+    ],
+    ans: 2,
+    exp: "origin はgit cloneで自動的に登録されるリモートリポジトリのデフォルト名（エイリアス）です。URLの別名として機能します。git remote -v で確認できます。"
+  },
+  {
+    q: "HEAD~3 の意味として正しいのはどれですか？",
+    opts: [
+      "3番目のブランチ",
+      "HEADから3つ前の祖先コミット",
+      "3つのコミット先（未来）",
+      "3番目にタグ付けされたコミット"
+    ],
+    ans: 1,
+    exp: "HEAD~3 はHEADから3世代遡った祖先コミットを指します。HEAD~1（または HEAD^）は1つ前、HEAD~2 は2つ前です。git show HEAD~3 で内容を確認できます。"
+  }
+];
+
+const quizState = { current: 0, score: 0, answered: false, order: [] };
+
+function quizStart() {
+  quizState.current = 0;
+  quizState.score = 0;
+  quizState.answered = false;
+  quizState.order = shuffle([...Array(QUESTIONS.length).keys()]);
+  document.getElementById('quiz-total').textContent = QUESTIONS.length;
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-container').querySelector('.card').style.display = 'block';
+  renderQuiz();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function renderQuiz() {
+  const idx = quizState.order[quizState.current];
+  const q = QUESTIONS[idx];
+  document.getElementById('quiz-question').textContent = `Q${quizState.current + 1}. ${q.q}`;
+  document.getElementById('quiz-progress').textContent = `${quizState.current + 1} / ${QUESTIONS.length}`;
+  document.getElementById('quiz-score-bar').textContent = `現在のスコア: ${quizState.score} / ${quizState.current}`;
+  const opts = document.getElementById('quiz-options');
+  opts.innerHTML = q.opts.map((o, i) =>
+    `<button class="quiz-option" onclick="quizAnswer(${i})">${o}</button>`
+  ).join('');
+  const fb = document.getElementById('quiz-feedback');
+  fb.className = 'quiz-feedback';
+  fb.textContent = '';
+  document.getElementById('quiz-next').style.display = 'none';
+  quizState.answered = false;
+}
+
+function quizAnswer(i) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  const idx = quizState.order[quizState.current];
+  const q = QUESTIONS[idx];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts[q.ans].classList.add('correct');
+  const fb = document.getElementById('quiz-feedback');
+  if (i === q.ans) {
+    quizState.score++;
+    fb.className = 'quiz-feedback correct show';
+    fb.textContent = '✓ 正解！ ' + q.exp;
+  } else {
+    opts[i].classList.add('wrong');
+    fb.className = 'quiz-feedback wrong show';
+    fb.textContent = '✗ 不正解。' + q.exp;
+  }
+  document.getElementById('quiz-score-bar').textContent = `現在のスコア: ${quizState.score} / ${quizState.current + 1}`;
+  document.getElementById('quiz-next').style.display = 'inline-block';
+}
+
+function quizNext() {
+  quizState.current++;
+  if (quizState.current >= QUESTIONS.length) {
+    showResult();
+  } else {
+    renderQuiz();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-container').querySelector('.card').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  const pct = Math.round(quizState.score / QUESTIONS.length * 100);
+  const comment = pct === 100 ? '完璧！' : pct >= 80 ? 'すばらしい！' : pct >= 60 ? 'なかなか良い！' : 'もう一度チャレンジ！';
+  document.getElementById('score-display').innerHTML =
+    `${quizState.score} <span style="font-size:1rem;color:#8b949e">/ ${QUESTIONS.length}</span><br>` +
+    `<span style="font-size:1.2rem;color:${pct>=80?'#3fb950':'#f0883e'}">${pct}%  ${comment}</span>`;
+}
+
+function quizRestart() {
+  quizStart();
+  document.getElementById('quiz-container').querySelector('.card').style.display = 'block';
+}
+
+// ──────────────────────────────────────────────
+// Glossary
+// ──────────────────────────────────────────────
+const GLOSSARY = [
+  { term: "リポジトリ (Repository)", def: "プロジェクトのすべてのファイルとその変更履歴を保存するデータベース。ローカルには .git/ フォルダとして存在する。", alias: "repo" },
+  { term: "コミット (Commit)", def: "ある時点のプロジェクトのスナップショット。SHA-1ハッシュで識別され、親コミットへの参照を持つ。変更の最小単位。" },
+  { term: "ブランチ (Branch)", def: "特定のコミットを指す軽量なポインタ。並行開発を可能にし、mainブランチに影響を与えずに作業できる。" },
+  { term: "HEAD", def: "現在チェックアウトしているコミット（またはブランチ）を指す特殊なポインタ。コミットすると自動的に前進する。" },
+  { term: "ステージングエリア (Staging Area)", def: "次のコミットに含める変更を一時登録する場所。git add で追加し、git commit で確定させる。Indexとも呼ばれる。", alias: "Index / キャッシュ" },
+  { term: "作業ツリー (Working Tree)", def: "実際にファイルを編集する場所。git add する前の変更はここにある。", alias: "Working Directory" },
+  { term: "マージ (Merge)", def: "2つのブランチの変更を統合する操作。Fast-forwardマージと3-wayマージがある。" },
+  { term: "リベース (Rebase)", def: "ブランチのコミットを別のコミットの上に付け替える操作。履歴を一直線にきれいにできるが、共有済みの履歴への適用は禁忌。" },
+  { term: "リモート (Remote)", def: "ネットワーク上のリポジトリ。git clone 時に origin という名前で自動登録される。" },
+  { term: "origin", def: "git clone 時にデフォルトで付けられるリモートリポジトリのエイリアス名。URLの短縮名として機能する。" },
+  { term: "クローン (Clone)", def: "リモートリポジトリの完全なコピーをローカルに作成する操作。履歴ごとすべてコピーされる。" },
+  { term: "フェッチ (Fetch)", def: "リモートの変更をローカルのorigin/*に取得するが、作業ツリーは変更しない。安全な同期操作。" },
+  { term: "プル (Pull)", def: "git fetch + git merge を実行する操作。リモートの変更を取得して作業ツリーに反映する。" },
+  { term: "プッシュ (Push)", def: "ローカルのコミットをリモートリポジトリに送信する操作。" },
+  { term: "コンフリクト (Conflict)", def: "同じファイルの同じ箇所を異なるブランチで変更した際に発生する競合。手動で解決する必要がある。" },
+  { term: "Fast-forward", def: "マージ先ブランチが分岐していない場合に、ポインタを前進させるだけのマージ方式。マージコミットが作成されない。" },
+  { term: "スタッシュ (Stash)", def: "未コミットの変更を一時的に退避させる機能。git stash で保存、git stash pop で復元する。" },
+  { term: "タグ (Tag)", def: "特定のコミットに付ける名前付きの永続ポインタ。バージョンリリース（v1.0.0 など）の管理に使う。" },
+  { term: "Detached HEAD", def: "HEADがブランチではなく特定のコミットを直接指している状態。この状態でのコミットはブランチを作成しないと参照が失われる。" },
+  { term: "上流ブランチ (Upstream)", def: "ローカルブランチが追跡するリモートブランチ。git push -u origin main で設定でき、以降は引数なしでpush/pullできる。", alias: "tracking branch" },
+  { term: ".gitignore", def: "Gitの追跡対象から除外するファイルやディレクトリのパターンを記述するファイル。node_modules/ や .env などを除外するのが一般的。" },
+  { term: "SHA-1 / ハッシュ", def: "コミットの一意な識別子。40文字の16進数文字列（短縮形7文字でも使用可）。コミット内容から計算されるため改ざん検知にも機能する。" },
+  { term: "インデックス (Index)", def: "ステージングエリアの別名。git add した変更が記録される .git/index ファイルのこと。" },
+  { term: "チェリーピック (Cherry-pick)", def: "特定のコミットだけを選んで別のブランチに適用する操作。git cherry-pick <hash> で実行。" },
+  { term: "リセット (Reset)", def: "HEADや作業ツリーを特定の状態に戻す操作。--soft（コミット取消）、--mixed（+ステージ取消）、--hard（+作業ツリー取消）のモードがある。" },
+  { term: "リバート (Revert)", def: "特定のコミットの変更を打ち消す新しいコミットを作成する。reset と異なり履歴を書き換えないため安全。" },
+];
+
+let glossaryRendered = false;
+function renderGlossary() {
+  if (glossaryRendered) return;
+  glossaryRendered = true;
+  const el = document.getElementById('glossary-list');
+  el.innerHTML = GLOSSARY.map(g =>
+    `<div class="glossary-item" data-term="${g.term.toLowerCase()} ${(g.alias||'').toLowerCase()} ${g.def.toLowerCase()}">
+      <div class="glossary-term">${g.term}</div>
+      <div class="glossary-def">${g.def}</div>
+      ${g.alias ? `<div class="glossary-alias">別名: ${g.alias}</div>` : ''}
+    </div>`
+  ).join('');
+}
+
+function filterGlossary() {
+  const q = document.getElementById('glossary-search').value.toLowerCase();
+  document.querySelectorAll('.glossary-item').forEach(el => {
+    el.style.display = el.dataset.term.includes(q) ? 'block' : 'none';
+  });
+}
+
+// ──────────────────────────────────────────────
+// Simulator
+// ──────────────────────────────────────────────
+const sim = {
+  initialized: false,
+  branch: 'main',
+  branches: {
+    main: []
+  },
+  commits: [],        // [{hash, msg, branch, parent}]
+  staged: [],
+  modified: [],
+  files: [],          // 全追跡ファイル
+  stash: null,
+  commitCounter: 0,
+  remotes: { origin: { main: [] } },
+};
+
+function initSim() {
+  if (sim.initialized) return;
+  sim.initialized = true;
+  const input = document.getElementById('sim-input');
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const cmd = input.value.trim();
+      if (cmd) {
+        runSimCmd(cmd);
+        input.value = '';
+      }
+    }
+  });
+  simPrint('info', 'Git シミュレーター起動。"help" でコマンド一覧を表示。');
+  simPrint('info', 'まずは: git init → touch app.js → git add app.js → git commit -m "初期コミット"');
+  simPrint('ok', '');
+  updateSimGraph();
+}
+
+function simPrint(type, text) {
+  const out = document.getElementById('sim-output');
+  const div = document.createElement('div');
+  div.className = 'out-line out-' + type;
+  div.textContent = text;
+  out.appendChild(div);
+  out.scrollTop = out.scrollHeight;
+}
+
+function makeHash() {
+  sim.commitCounter++;
+  return sim.commitCounter.toString(16).padStart(7, '0');
+}
+
+function runSimCmd(raw) {
+  simPrint('cmd', raw);
+  const parts = raw.trim().split(/\s+/);
+  const cmd = parts[0];
+  const sub = parts[1];
+
+  if (cmd === 'help') {
+    simPrint('info', '── 利用可能なコマンド ──');
+    simPrint('ok', 'git init                  リポジトリを初期化');
+    simPrint('ok', 'touch <file>              ファイルを作成（未追跡）');
+    simPrint('ok', 'edit <file>               ファイルを変更（追跡済みをmodified状態に）');
+    simPrint('ok', 'git status                状態確認');
+    simPrint('ok', 'git add <file>            ステージング');
+    simPrint('ok', 'git add .                 全変更をステージ');
+    simPrint('ok', 'git commit -m "msg"       コミット');
+    simPrint('ok', 'git log                   履歴表示');
+    simPrint('ok', 'git branch                ブランチ一覧');
+    simPrint('ok', 'git branch <name>         ブランチ作成');
+    simPrint('ok', 'git switch <name>         ブランチ切り替え');
+    simPrint('ok', 'git switch -c <name>      ブランチ作成+切り替え');
+    simPrint('ok', 'git merge <branch>        マージ');
+    simPrint('ok', 'git stash                 変更を退避');
+    simPrint('ok', 'git stash pop             退避した変更を復元');
+    simPrint('ok', 'git diff                  差分表示');
+    simPrint('ok', 'git reset HEAD~1          直前コミットを取り消し');
+    simPrint('ok', 'clear                     画面クリア');
+    updateSimGraph();
+    return;
+  }
+
+  if (cmd === 'clear') {
+    document.getElementById('sim-output').innerHTML = '';
+    return;
+  }
+
+  if (cmd === 'touch') {
+    const f = parts[1];
+    if (!f) { simPrint('err', 'ファイル名を指定してください'); return; }
+    if (sim.files.includes(f) || sim.modified.includes(f)) {
+      simPrint('err', `${f}: すでに存在します`);
+    } else {
+      sim.files.push(f);
+      if (!sim.modified.includes(f)) sim.modified.push(f);
+      simPrint('ok', `${f} を作成しました（Untracked）`);
+    }
+    updateSimGraph(); return;
+  }
+
+  if (cmd === 'edit') {
+    const f = parts[1];
+    if (!f) { simPrint('err', 'ファイル名を指定してください'); return; }
+    if (!sim.files.includes(f)) { simPrint('err', `${f}: ファイルが存在しません。touch で作成してください`); return; }
+    if (!sim.modified.includes(f)) sim.modified.push(f);
+    if (!sim.staged.includes(f)) simPrint('ok', `${f} を変更しました（Modified）`);
+    else simPrint('ok', `${f} を変更しました（Staged + Modified）`);
+    updateSimGraph(); return;
+  }
+
+  if (cmd !== 'git') {
+    simPrint('err', `コマンドが見つかりません: ${cmd}。git コマンドまたは touch/edit/clear を使ってください`);
+    return;
+  }
+
+  // git subcommands
+  switch (sub) {
+    case 'init':
+      simPrint('ok', `Initialized empty Git repository`);
+      break;
+
+    case 'status': {
+      simPrint('ok', `On branch ${sim.branch}`);
+      if (sim.commits.filter(c=>c.branch===sim.branch).length === 0)
+        simPrint('dim', 'No commits yet');
+      if (sim.staged.length === 0 && sim.modified.length === 0) {
+        simPrint('ok', 'nothing to commit, working tree clean');
+      } else {
+        if (sim.staged.length > 0) {
+          simPrint('info', 'Changes to be committed:');
+          sim.staged.forEach(f => simPrint('ok', `  staged: ${f}`));
+        }
+        if (sim.modified.length > 0) {
+          simPrint('info', 'Changes not staged / Untracked:');
+          sim.modified.forEach(f => simPrint('err', `  modified/untracked: ${f}`));
+        }
+      }
+      break;
+    }
+
+    case 'add': {
+      const target = parts[2];
+      if (!target) { simPrint('err', 'ファイルを指定してください: git add <file> または git add .'); break; }
+      const toStage = target === '.' ? [...sim.modified] : [target];
+      if (toStage.length === 0) { simPrint('ok', 'nothing to add'); break; }
+      let added = 0;
+      toStage.forEach(f => {
+        if (!sim.modified.includes(f) && !sim.files.includes(f)) {
+          simPrint('err', `pathspec '${f}' did not match any files`);
+        } else {
+          if (!sim.staged.includes(f)) sim.staged.push(f);
+          sim.modified = sim.modified.filter(x => x !== f);
+          added++;
+        }
+      });
+      if (added > 0) simPrint('ok', `${added} ファイルをステージしました`);
+      break;
+    }
+
+    case 'commit': {
+      const mFlag = parts.indexOf('-m');
+      const msg = mFlag >= 0 ? parts.slice(mFlag + 1).join(' ').replace(/^"|"$/g, '').replace(/^'|'$/g, '') : null;
+      if (!msg) { simPrint('err', 'コミットメッセージが必要です: git commit -m "メッセージ"'); break; }
+      if (sim.staged.length === 0) { simPrint('err', 'nothing to commit'); break; }
+      const hash = makeHash();
+      const parentArr = sim.commits.filter(c => c.branch === sim.branch);
+      const parent = parentArr.length > 0 ? parentArr[parentArr.length - 1].hash : null;
+      const commit = { hash, msg, branch: sim.branch, parent, files: [...sim.staged] };
+      sim.commits.push(commit);
+      if (!sim.branches[sim.branch]) sim.branches[sim.branch] = [];
+      sim.branches[sim.branch].push(hash);
+      simPrint('ok', `[${sim.branch} ${hash}] ${msg}`);
+      simPrint('dim', `  ${sim.staged.length} file(s) changed`);
+      sim.staged = [];
+      break;
+    }
+
+    case 'log': {
+      const branchCommits = sim.commits.filter(c => c.branch === sim.branch);
+      if (branchCommits.length === 0) { simPrint('dim', 'No commits yet'); break; }
+      [...branchCommits].reverse().forEach(c => {
+        simPrint('info', `commit ${c.hash}`);
+        simPrint('ok', `    ${c.msg}`);
+      });
+      break;
+    }
+
+    case 'branch': {
+      const bname = parts[2];
+      const dflag = parts[2] === '-d';
+      if (!bname || bname === '-v') {
+        Object.keys(sim.branches).forEach(b => {
+          const mark = b === sim.branch ? '* ' : '  ';
+          simPrint('ok', `${mark}${b}`);
+        });
+      } else if (dflag) {
+        const target = parts[3];
+        if (!target) { simPrint('err', 'ブランチ名を指定してください'); break; }
+        if (target === sim.branch) { simPrint('err', '現在のブランチは削除できません'); break; }
+        if (!sim.branches[target]) { simPrint('err', `ブランチ '${target}' が見つかりません`); break; }
+        delete sim.branches[target];
+        simPrint('ok', `Deleted branch ${target}`);
+      } else {
+        if (sim.branches[bname]) { simPrint('err', `ブランチ '${bname}' はすでに存在します`); break; }
+        sim.branches[bname] = [...(sim.branches[sim.branch] || [])];
+        simPrint('ok', `ブランチ '${bname}' を作成しました`);
+      }
+      break;
+    }
+
+    case 'switch': {
+      const cFlag = parts[2] === '-c';
+      const bname = cFlag ? parts[3] : parts[2];
+      if (!bname) { simPrint('err', 'ブランチ名を指定してください'); break; }
+      if (cFlag) {
+        if (sim.branches[bname]) { simPrint('err', `ブランチ '${bname}' はすでに存在します`); break; }
+        sim.branches[bname] = [...(sim.branches[sim.branch] || [])];
+        sim.branch = bname;
+        simPrint('ok', `新しいブランチ '${bname}' に切り替えました`);
+      } else {
+        if (!sim.branches[bname]) { simPrint('err', `ブランチ '${bname}' が見つかりません。git branch ${bname} で作成してください`); break; }
+        sim.branch = bname;
+        simPrint('ok', `ブランチ '${bname}' に切り替えました`);
+      }
+      document.getElementById('sim-branch-label').textContent = sim.branch;
+      break;
+    }
+
+    case 'merge': {
+      const src = parts[2];
+      if (!src) { simPrint('err', 'マージするブランチを指定してください'); break; }
+      if (!sim.branches[src]) { simPrint('err', `ブランチ '${src}' が見つかりません`); break; }
+      if (src === sim.branch) { simPrint('err', '自身のブランチにはマージできません'); break; }
+      const srcCommits = sim.commits.filter(c => c.branch === src);
+      if (srcCommits.length === 0) { simPrint('err', `ブランチ '${src}' にコミットがありません`); break; }
+      const mergeHash = makeHash();
+      const mergeCommit = {
+        hash: mergeHash,
+        msg: `Merge branch '${src}' into ${sim.branch}`,
+        branch: sim.branch,
+        parent: sim.branches[sim.branch][sim.branches[sim.branch].length - 1] || null,
+        mergeParent: srcCommits[srcCommits.length - 1].hash,
+        files: []
+      };
+      sim.commits.push(mergeCommit);
+      sim.branches[sim.branch].push(mergeHash);
+      simPrint('ok', `Merge made by the 'ort' strategy.`);
+      simPrint('info', `[${sim.branch} ${mergeHash}] ${mergeCommit.msg}`);
+      break;
+    }
+
+    case 'stash': {
+      if (parts[2] === 'pop') {
+        if (!sim.stash) { simPrint('err', 'スタッシュが空です'); break; }
+        sim.modified.push(...sim.stash);
+        sim.stash = null;
+        simPrint('ok', '変更を復元しました');
+      } else {
+        if (sim.staged.length === 0 && sim.modified.length === 0) {
+          simPrint('ok', 'No local changes to save');
+        } else {
+          sim.stash = [...sim.staged, ...sim.modified];
+          sim.staged = [];
+          sim.modified = [];
+          simPrint('ok', `Saved working directory and index state WIP on ${sim.branch}`);
+        }
+      }
+      break;
+    }
+
+    case 'diff': {
+      if (sim.modified.length === 0 && sim.staged.length === 0) {
+        simPrint('ok', '差分はありません');
+      } else {
+        if (sim.staged.length > 0) simPrint('info', `ステージ済みの変更: ${sim.staged.join(', ')}`);
+        if (sim.modified.length > 0) simPrint('info', `未ステージの変更: ${sim.modified.join(', ')}`);
+      }
+      break;
+    }
+
+    case 'reset': {
+      if (parts[2] === 'HEAD~1') {
+        const branchCommits = sim.commits.filter(c => c.branch === sim.branch);
+        if (branchCommits.length === 0) { simPrint('err', 'コミットがありません'); break; }
+        const removed = sim.commits.pop();
+        sim.branches[sim.branch].pop();
+        if (removed.files) sim.staged.push(...removed.files.filter(f => !sim.staged.includes(f)));
+        simPrint('ok', `コミット ${removed.hash} を取り消しました（変更はステージに戻りました）`);
+      } else {
+        simPrint('err', 'サポートされているのは: git reset HEAD~1');
+      }
+      break;
+    }
+
+    default:
+      simPrint('err', `git: '${sub}' は有効なコマンドではありません`);
+  }
+  updateSimGraph();
+}
+
+function updateSimGraph() {
+  const el = document.getElementById('sim-tree');
+  const branches = Object.keys(sim.branches);
+  let html = '';
+
+  const colors = ['#58a6ff','#3fb950','#f0883e','#f78166','#d2a8ff'];
+
+  branches.forEach((b, bi) => {
+    const c = colors[bi % colors.length];
+    const commits = sim.commits.filter(x => x.branch === b);
+    const label = b === sim.branch
+      ? `<span class="branch-label" style="background:${c}22;color:${c}">● ${b}</span>`
+      : `<span class="branch-label" style="background:#21262d;color:#8b949e">  ${b}</span>`;
+    html += `<div style="margin-bottom:6px">${label}</div>`;
+    if (commits.length === 0) {
+      html += `<div style="color:#8b949e;font-size:.72rem;margin-left:8px;margin-bottom:8px">(コミットなし)</div>`;
+    } else {
+      const last3 = commits.slice(-3);
+      last3.forEach((c2, i) => {
+        const dotColor = b === sim.branch ? colors[bi % colors.length] : '#8b949e';
+        const isHead = i === last3.length - 1;
+        html += `<div class="commit-node" style="margin-left:8px">
+          <div class="commit-dot" style="background:${dotColor}"></div>
+          <span style="color:#8b949e;font-size:.72rem">${c2.hash}</span>
+          <span style="color:${dotColor === '#8b949e' ? '#8b949e' : '#c9d1d9'};font-size:.75rem">${c2.msg.slice(0,20)}</span>
+          ${isHead && b === sim.branch ? '<span style="color:#f0883e;font-size:.7rem">← HEAD</span>' : ''}
+        </div>`;
+        if (i < last3.length - 1) {
+          html += `<div style="margin-left:13px;color:#30363d;font-size:.8rem">│</div>`;
+        }
+      });
+      html += `<div style="margin-bottom:10px"></div>`;
+    }
+  });
+
+  if (html === '') html = '<span style="color:#8b949e;font-size:.8rem">git init してください</span>';
+  el.innerHTML = html;
+
+  // staged / modified
+  const stagedEl = document.getElementById('sim-staged-list');
+  stagedEl.innerHTML = sim.staged.length
+    ? sim.staged.map(f => `<span class="file-item staged">${f}</span>`).join('')
+    : '<span style="color:#8b949e;font-size:.72rem">空</span>';
+
+  const modEl = document.getElementById('sim-modified-list');
+  modEl.innerHTML = sim.modified.length
+    ? sim.modified.map(f => `<span class="file-item modified">${f}</span>`).join('')
+    : '<span style="color:#8b949e;font-size:.72rem">空</span>';
+}
+</script>
+</body>
+</html>
