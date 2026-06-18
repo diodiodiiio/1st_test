@@ -1,0 +1,536 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		PA000001 /* PhotoReviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000001 /* PhotoReviewApp.swift */; };
+		PA000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000002 /* ContentView.swift */; };
+		PA000003 /* ReviewRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000003 /* ReviewRecord.swift */; };
+		PA000004 /* Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000004 /* Genre.swift */; };
+		PA000005 /* MediaItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000005 /* MediaItem.swift */; };
+		PA000006 /* WeekHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000006 /* WeekHelper.swift */; };
+		PA000007 /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000007 /* PhotoLibraryService.swift */; };
+		PA000008 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000008 /* NotificationService.swift */; };
+		PA000009 /* ReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000009 /* ReviewViewModel.swift */; };
+		PA000010 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000010 /* SettingsViewModel.swift */; };
+		PA000011 /* WeekPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000011 /* WeekPickerView.swift */; };
+		PA000012 /* SwipeReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000012 /* SwipeReviewView.swift */; };
+		PA000013 /* ReviewCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000013 /* ReviewCardView.swift */; };
+		PA000014 /* GenrePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000014 /* GenrePickerView.swift */; };
+		PA000015 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000015 /* SummaryView.swift */; };
+		PA000016 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P1000016 /* SettingsView.swift */; };
+		PB000001 /* WeekHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P2000001 /* WeekHelperTests.swift */; };
+		PB000002 /* ReviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P2000002 /* ReviewViewModelTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		P1000001 /* PhotoReviewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoReviewApp.swift; sourceTree = "<group>"; };
+		P1000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		P1000003 /* ReviewRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewRecord.swift; sourceTree = "<group>"; };
+		P1000004 /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Genre.swift; sourceTree = "<group>"; };
+		P1000005 /* MediaItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaItem.swift; sourceTree = "<group>"; };
+		P1000006 /* WeekHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekHelper.swift; sourceTree = "<group>"; };
+		P1000007 /* PhotoLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryService.swift; sourceTree = "<group>"; };
+		P1000008 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		P1000009 /* ReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModel.swift; sourceTree = "<group>"; };
+		P1000010 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		P1000011 /* WeekPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekPickerView.swift; sourceTree = "<group>"; };
+		P1000012 /* SwipeReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeReviewView.swift; sourceTree = "<group>"; };
+		P1000013 /* ReviewCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewCardView.swift; sourceTree = "<group>"; };
+		P1000014 /* GenrePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenrePickerView.swift; sourceTree = "<group>"; };
+		P1000015 /* SummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
+		P1000016 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		P1000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		P2000001 /* WeekHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekHelperTests.swift; sourceTree = "<group>"; };
+		P2000002 /* ReviewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModelTests.swift; sourceTree = "<group>"; };
+		PC000001 /* PhotoReview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoReview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		PC000002 /* PhotoReviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoReviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		QD000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		QD000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		QE000000 /* root */ = {
+			isa = PBXGroup;
+			children = (
+				QE000001 /* PhotoReview */,
+				QE000002 /* PhotoReviewTests */,
+				QE000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		QE000001 /* PhotoReview */ = {
+			isa = PBXGroup;
+			children = (
+				QE000010 /* App */,
+				QE000011 /* Models */,
+				QE000012 /* Utils */,
+				QE000013 /* Services */,
+				QE000014 /* ViewModels */,
+				QE000015 /* Views */,
+				P1000017 /* Info.plist */,
+			);
+			path = PhotoReview;
+			sourceTree = "<group>";
+		};
+		QE000010 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				P1000001 /* PhotoReviewApp.swift */,
+				P1000002 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		QE000011 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				P1000003 /* ReviewRecord.swift */,
+				P1000004 /* Genre.swift */,
+				P1000005 /* MediaItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		QE000012 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				P1000006 /* WeekHelper.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		QE000013 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				P1000007 /* PhotoLibraryService.swift */,
+				P1000008 /* NotificationService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		QE000014 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				P1000009 /* ReviewViewModel.swift */,
+				P1000010 /* SettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		QE000015 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				P1000011 /* WeekPickerView.swift */,
+				P1000012 /* SwipeReviewView.swift */,
+				P1000013 /* ReviewCardView.swift */,
+				P1000014 /* GenrePickerView.swift */,
+				P1000015 /* SummaryView.swift */,
+				P1000016 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		QE000002 /* PhotoReviewTests */ = {
+			isa = PBXGroup;
+			children = (
+				P2000001 /* WeekHelperTests.swift */,
+				P2000002 /* ReviewViewModelTests.swift */,
+			);
+			path = PhotoReviewTests;
+			sourceTree = "<group>";
+		};
+		QE000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				PC000001 /* PhotoReview.app */,
+				PC000002 /* PhotoReviewTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		QF000001 /* PhotoReview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = QF100001 /* Build configuration list for PBXNativeTarget "PhotoReview" */;
+			buildPhases = (
+				QF200001 /* Sources */,
+				QD000001 /* Frameworks */,
+				QF200003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PhotoReview;
+			productName = PhotoReview;
+			productReference = PC000001 /* PhotoReview.app */;
+			productType = "com.apple.product-type.application";
+		};
+		QF000002 /* PhotoReviewTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = QF100002 /* Build configuration list for PBXNativeTarget "PhotoReviewTests" */;
+			buildPhases = (
+				QF200002 /* Sources */,
+				QD000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				QF300001 /* PBXTargetDependency */,
+			);
+			name = PhotoReviewTests;
+			productName = PhotoReviewTests;
+			productReference = PC000002 /* PhotoReviewTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		QF400001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					QF000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					QF000002 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = QF000001;
+					};
+				};
+			};
+			buildConfigurationList = QF100003 /* Build configuration list for PBXProject "PhotoReview" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = ja;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				ja,
+				en,
+				Base,
+			);
+			mainGroup = QE000000;
+			productRefGroup = QE000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				QF000001 /* PhotoReview */,
+				QF000002 /* PhotoReviewTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		QF200003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		QF200001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				PA000001 /* PhotoReviewApp.swift in Sources */,
+				PA000002 /* ContentView.swift in Sources */,
+				PA000003 /* ReviewRecord.swift in Sources */,
+				PA000004 /* Genre.swift in Sources */,
+				PA000005 /* MediaItem.swift in Sources */,
+				PA000006 /* WeekHelper.swift in Sources */,
+				PA000007 /* PhotoLibraryService.swift in Sources */,
+				PA000008 /* NotificationService.swift in Sources */,
+				PA000009 /* ReviewViewModel.swift in Sources */,
+				PA000010 /* SettingsViewModel.swift in Sources */,
+				PA000011 /* WeekPickerView.swift in Sources */,
+				PA000012 /* SwipeReviewView.swift in Sources */,
+				PA000013 /* ReviewCardView.swift in Sources */,
+				PA000014 /* GenrePickerView.swift in Sources */,
+				PA000015 /* SummaryView.swift in Sources */,
+				PA000016 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		QF200002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				PB000001 /* WeekHelperTests.swift in Sources */,
+				PB000002 /* ReviewViewModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		QF300001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = QF000001 /* PhotoReview */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		QG000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		QG000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		QG100001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PhotoReview/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.photoreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		QG100002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PhotoReview/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.photoreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		QG200001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.photoreview.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PhotoReview.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PhotoReview";
+			};
+			name = Debug;
+		};
+		QG200002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.photoreview.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PhotoReview.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PhotoReview";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		QF100001 /* Build configuration list for PBXNativeTarget "PhotoReview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				QG100001 /* Debug */,
+				QG100002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		QF100002 /* Build configuration list for PBXNativeTarget "PhotoReviewTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				QG200001 /* Debug */,
+				QG200002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		QF100003 /* Build configuration list for PBXProject "PhotoReview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				QG000001 /* Debug */,
+				QG000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = QF400001 /* Project object */;
+}
