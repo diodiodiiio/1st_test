@@ -1,0 +1,561 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A1000001 /* OneDriveSlideshowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000001 /* OneDriveSlideshowApp.swift */; };
+		A1000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000002 /* ContentView.swift */; };
+		A1000003 /* DriveItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000003 /* DriveItem.swift */; };
+		A1000004 /* SlideshowSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000004 /* SlideshowSettings.swift */; };
+		A1000005 /* MSAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000005 /* MSAuthService.swift */; };
+		A1000006 /* OneDriveAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000006 /* OneDriveAPIService.swift */; };
+		A1000007 /* ImageCacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000007 /* ImageCacheService.swift */; };
+		A1000008 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000008 /* AuthViewModel.swift */; };
+		A1000009 /* FolderBrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000009 /* FolderBrowserViewModel.swift */; };
+		A1000010 /* SlideshowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000010 /* SlideshowViewModel.swift */; };
+		A1000011 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011 /* LoginView.swift */; };
+		A1000012 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000012 /* HomeView.swift */; };
+		A1000013 /* FolderBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000013 /* FolderBrowserView.swift */; };
+		A1000014 /* SlideshowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000014 /* SlideshowView.swift */; };
+		A1000015 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000015 /* SettingsView.swift */; };
+		A2000001 /* MockOneDriveAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001 /* MockOneDriveAPIService.swift */; };
+		A2000002 /* OneDriveAPIServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000002 /* OneDriveAPIServiceTests.swift */; };
+		A2000003 /* SlideshowViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000003 /* SlideshowViewModelTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B1000001 /* OneDriveSlideshowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneDriveSlideshowApp.swift; sourceTree = "<group>"; };
+		B1000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B1000003 /* DriveItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveItem.swift; sourceTree = "<group>"; };
+		B1000004 /* SlideshowSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideshowSettings.swift; sourceTree = "<group>"; };
+		B1000005 /* MSAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSAuthService.swift; sourceTree = "<group>"; };
+		B1000006 /* OneDriveAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneDriveAPIService.swift; sourceTree = "<group>"; };
+		B1000007 /* ImageCacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacheService.swift; sourceTree = "<group>"; };
+		B1000008 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		B1000009 /* FolderBrowserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderBrowserViewModel.swift; sourceTree = "<group>"; };
+		B1000010 /* SlideshowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideshowViewModel.swift; sourceTree = "<group>"; };
+		B1000011 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		B1000012 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		B1000013 /* FolderBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderBrowserView.swift; sourceTree = "<group>"; };
+		B1000014 /* SlideshowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideshowView.swift; sourceTree = "<group>"; };
+		B1000015 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B1000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B2000001 /* MockOneDriveAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockOneDriveAPIService.swift; sourceTree = "<group>"; };
+		B2000002 /* OneDriveAPIServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneDriveAPIServiceTests.swift; sourceTree = "<group>"; };
+		B2000003 /* SlideshowViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideshowViewModelTests.swift; sourceTree = "<group>"; };
+		C0000001 /* OneDriveSlideshow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneDriveSlideshow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0000002 /* OneDriveSlideshowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneDriveSlideshowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D0000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D0000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E0000000 /* root */ = {
+			isa = PBXGroup;
+			children = (
+				E0000001 /* OneDriveSlideshow */,
+				E0000002 /* OneDriveSlideshowTests */,
+				E0000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E0000001 /* OneDriveSlideshow */ = {
+			isa = PBXGroup;
+			children = (
+				E0000010 /* App */,
+				E0000011 /* Models */,
+				E0000012 /* Services */,
+				E0000013 /* ViewModels */,
+				E0000014 /* Views */,
+				B1000016 /* Info.plist */,
+			);
+			path = OneDriveSlideshow;
+			sourceTree = "<group>";
+		};
+		E0000010 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B1000001 /* OneDriveSlideshowApp.swift */,
+				B1000002 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		E0000011 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B1000003 /* DriveItem.swift */,
+				B1000004 /* SlideshowSettings.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E0000012 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B1000005 /* MSAuthService.swift */,
+				B1000006 /* OneDriveAPIService.swift */,
+				B1000007 /* ImageCacheService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		E0000013 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				B1000008 /* AuthViewModel.swift */,
+				B1000009 /* FolderBrowserViewModel.swift */,
+				B1000010 /* SlideshowViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		E0000014 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B1000011 /* LoginView.swift */,
+				B1000012 /* HomeView.swift */,
+				B1000013 /* FolderBrowserView.swift */,
+				B1000014 /* SlideshowView.swift */,
+				B1000015 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E0000002 /* OneDriveSlideshowTests */ = {
+			isa = PBXGroup;
+			children = (
+				E0000020 /* Mocks */,
+				B2000002 /* OneDriveAPIServiceTests.swift */,
+				B2000003 /* SlideshowViewModelTests.swift */,
+			);
+			path = OneDriveSlideshowTests;
+			sourceTree = "<group>";
+		};
+		E0000020 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				B2000001 /* MockOneDriveAPIService.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		E0000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C0000001 /* OneDriveSlideshow.app */,
+				C0000002 /* OneDriveSlideshowTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F0000001 /* OneDriveSlideshow */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F1000001 /* Build configuration list for PBXNativeTarget "OneDriveSlideshow" */;
+			buildPhases = (
+				F2000001 /* Sources */,
+				D0000001 /* Frameworks */,
+				F2000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OneDriveSlideshow;
+			packageProductDependencies = (
+				P0000001 /* MSAL */,
+			);
+			productName = OneDriveSlideshow;
+			productReference = C0000001 /* OneDriveSlideshow.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F0000002 /* OneDriveSlideshowTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F1000002 /* Build configuration list for PBXNativeTarget "OneDriveSlideshowTests" */;
+			buildPhases = (
+				F2000002 /* Sources */,
+				D0000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F3000001 /* PBXTargetDependency */,
+			);
+			name = OneDriveSlideshowTests;
+			productName = OneDriveSlideshowTests;
+			productReference = C0000002 /* OneDriveSlideshowTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F4000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					F0000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					F0000002 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = F0000001;
+					};
+				};
+			};
+			buildConfigurationList = F1000003 /* Build configuration list for PBXProject "OneDriveSlideshow" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = ja;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				ja,
+				en,
+				Base,
+			);
+			mainGroup = E0000000;
+			packageReferences = (
+				PP000001 /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */,
+			);
+			productRefGroup = E0000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F0000001 /* OneDriveSlideshow */,
+				F0000002 /* OneDriveSlideshowTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F2000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F2000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000001 /* OneDriveSlideshowApp.swift in Sources */,
+				A1000002 /* ContentView.swift in Sources */,
+				A1000003 /* DriveItem.swift in Sources */,
+				A1000004 /* SlideshowSettings.swift in Sources */,
+				A1000005 /* MSAuthService.swift in Sources */,
+				A1000006 /* OneDriveAPIService.swift in Sources */,
+				A1000007 /* ImageCacheService.swift in Sources */,
+				A1000008 /* AuthViewModel.swift in Sources */,
+				A1000009 /* FolderBrowserViewModel.swift in Sources */,
+				A1000010 /* SlideshowViewModel.swift in Sources */,
+				A1000011 /* LoginView.swift in Sources */,
+				A1000012 /* HomeView.swift in Sources */,
+				A1000013 /* FolderBrowserView.swift in Sources */,
+				A1000014 /* SlideshowView.swift in Sources */,
+				A1000015 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2000001 /* MockOneDriveAPIService.swift in Sources */,
+				A2000002 /* OneDriveAPIServiceTests.swift in Sources */,
+				A2000003 /* SlideshowViewModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F3000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F0000001 /* OneDriveSlideshow */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		G0000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		G0000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		G1000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OneDriveSlideshow/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.onedriveslideshow;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		G1000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OneDriveSlideshow/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.onedriveslideshow;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		G2000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.onedriveslideshow.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OneDriveSlideshow.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/OneDriveSlideshow";
+			};
+			name = Debug;
+		};
+		G2000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.onedriveslideshow.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OneDriveSlideshow.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/OneDriveSlideshow";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F1000001 /* Build configuration list for PBXNativeTarget "OneDriveSlideshow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				G1000001 /* Debug */,
+				G1000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F1000002 /* Build configuration list for PBXNativeTarget "OneDriveSlideshowTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				G2000001 /* Debug */,
+				G2000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F1000003 /* Build configuration list for PBXProject "OneDriveSlideshow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				G0000001 /* Debug */,
+				G0000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		PP000001 /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AzureAD/microsoft-authentication-library-for-objc";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		P0000001 /* MSAL */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = PP000001 /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */;
+			productName = MSAL;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+	};
+	rootObject = F4000001 /* Project object */;
+}
