@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { QuizQuestion } from '../data/types';
 import { colors, radius, spacing, typography } from '../theme';
+import { useSpeech } from '../hooks/useSpeech';
 
 interface Props {
   question: QuizQuestion;
@@ -23,6 +24,12 @@ function shuffle<T>(arr: T[]): T[] {
 export default function QuizCard({ question, onAnswer, questionNumber, total }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const shuffledOptions = useMemo(() => shuffle(question.options), [question.id]);
+  const { speak, isSpeaking } = useSpeech();
+
+  useEffect(() => {
+    const timer = setTimeout(() => speak(question.german), 300);
+    return () => clearTimeout(timer);
+  }, [question.id]);
 
   const handleSelect = (option: string) => {
     if (selected) return;
@@ -56,6 +63,14 @@ export default function QuizCard({ question, onAnswer, questionNumber, total }: 
       <View style={styles.questionBox}>
         <Text style={styles.questionLabel}>次のドイツ語の意味は？</Text>
         <Text style={styles.questionText}>{question.german}</Text>
+        <TouchableOpacity
+          style={[styles.speakBtn, isSpeaking && styles.speakBtnActive]}
+          onPress={() => speak(question.german)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.speakIcon}>{isSpeaking ? '🔊' : '🔈'}</Text>
+          <Text style={styles.speakLabel}>読み上げ</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.options}>
         {shuffledOptions.map((option) => (
@@ -100,17 +115,36 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
+    gap: spacing.sm,
   },
   questionLabel: {
     ...typography.small,
     color: colors.text.secondary,
-    marginBottom: spacing.sm,
   },
   questionText: {
     fontSize: 30,
     fontWeight: '700',
     color: colors.text.primary,
     textAlign: 'center',
+  },
+  speakBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: '#EFF6FF',
+    borderRadius: radius.full,
+  },
+  speakBtnActive: {
+    backgroundColor: '#BFDBFE',
+  },
+  speakIcon: {
+    fontSize: 16,
+  },
+  speakLabel: {
+    ...typography.smallBold,
+    color: colors.primary,
   },
   options: {
     gap: spacing.sm,
