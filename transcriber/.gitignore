@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+
+# 仮想環境
+.venv/
+venv/
+env/
+
+# Whisperのモデルキャッシュ（サイズが大きいのでコミットしない）
+models/
+*.bin
+
+# 一時ファイル・テスト音声
+*.tmp
+tmp/

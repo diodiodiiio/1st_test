@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>音声文字起こし</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --text: #1c1f26;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --border: #e2e5eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 16px;
+    }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin: 16px 0 4px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin: 0 0 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    label { font-weight: 600; display: block; margin-bottom: 8px; }
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      background: #fafbfc;
+      font-size: 1rem;
+    }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+    select, button {
+      font-size: 1rem;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      min-width: 140px;
+    }
+    button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    button.ghost {
+      background: #fff;
+      color: var(--accent);
+      cursor: pointer;
+    }
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: -3px;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #result {
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 80px;
+      background: #fafbfc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 1rem;
+    }
+    .result-actions { display: flex; gap: 12px; margin-top: 12px; }
+    .status { color: var(--muted); font-size: 0.9rem; margin-top: 10px; min-height: 1.2em; }
+    .error { color: #b91c1c; }
+    .hidden { display: none; }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #14161a;
+        --card: #1e2127;
+        --text: #e6e8ec;
+        --muted: #9aa2ad;
+        --border: #333842;
+      }
+      input[type="file"], #result { background: #23272e; }
+      button.ghost { background: #1e2127; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>音声文字起こし</h1>
+    <p class="subtitle">iPhoneなどで録音した音声を、この端末内（ローカル）で文字に起こします。音声は外部に送信されません。</p>
+
+    <div class="card">
+      <label for="file">音声ファイルを選ぶ（.m4a / .mp3 / .wav など）</label>
+      <input type="file" id="file" accept="audio/*" />
+      <div class="row">
+        <select id="language" aria-label="言語">
+          <option value="ja" selected>日本語</option>
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+          <option value="ko">한국어</option>
+        </select>
+        <button class="primary" id="submit">文字起こしする</button>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="card hidden" id="resultCard">
+      <label>結果</label>
+      <div id="result"></div>
+      <div class="result-actions">
+        <button class="ghost" id="copy">コピー</button>
+        <button class="ghost" id="download">.txtで保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("file");
+    const languageSelect = document.getElementById("language");
+    const submitBtn = document.getElementById("submit");
+    const statusEl = document.getElementById("status");
+    const resultCard = document.getElementById("resultCard");
+    const resultEl = document.getElementById("result");
+    const copyBtn = document.getElementById("copy");
+    const downloadBtn = document.getElementById("download");
+
+    submitBtn.addEventListener("click", async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        setStatus("音声ファイルを選んでください。", true);
+        return;
+      }
+
+      setLoading(true);
+      resultCard.classList.add("hidden");
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("language", languageSelect.value);
+
+      try {
+        const res = await fetch("/transcribe", { method: "POST", body: formData });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || "文字起こしに失敗しました。");
+        }
+        resultEl.textContent = data.text || "(認識結果が空でした)";
+        resultCard.classList.remove("hidden");
+        setStatus("完了しました。");
+      } catch (err) {
+        setStatus(err.message, true);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(resultEl.textContent);
+        copyBtn.textContent = "コピーしました";
+        setTimeout(() => (copyBtn.textContent = "コピー"), 1500);
+      } catch {
+        setStatus("コピーに失敗しました。手動で選択してください。", true);
+      }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const blob = new Blob([resultEl.textContent], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "transcript.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      if (loading) {
+        submitBtn.innerHTML = '<span class="spinner"></span>文字起こし中…';
+        setStatus("音声を処理しています。長い音声ほど時間がかかります。");
+      } else {
+        submitBtn.textContent = "文字起こしする";
+      }
+    }
+
+    function setStatus(msg, isError = false) {
+      statusEl.textContent = msg;
+      statusEl.classList.toggle("error", isError);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# 音声文字起こしアプリの依存ライブラリ
+# ローカル実行（クラウドAPI不使用・無料）
+
+faster-whisper==1.0.3   # ローカルWhisper（音声→テキスト）。内部のavでm4aもデコード可
+fastapi==0.111.0        # Webバックエンド
+uvicorn==0.30.1         # FastAPIを起動するサーバー
+python-multipart==0.0.9 # ファイルアップロード（multipart/form-data）の受け取りに必要
