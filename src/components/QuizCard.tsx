@@ -27,6 +27,7 @@ export default function QuizCard({ question, onAnswer, questionNumber, total }: 
   const { speak, isSpeaking } = useSpeech();
 
   useEffect(() => {
+    setSelected(null);
     const timer = setTimeout(() => speak(question.german), 300);
     return () => clearTimeout(timer);
   }, [question.id]);
