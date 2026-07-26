@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { QuizQuestion } from '../data/types';
 import { colors, radius, spacing, typography } from '../theme';
@@ -59,7 +59,11 @@ export default function QuizCard({ question, onAnswer, questionNumber, total }: 
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
       <Text style={styles.counter}>{questionNumber} / {total}</Text>
       <View style={styles.questionBox}>
         <Text style={styles.questionLabel}>次のドイツ語の意味は？</Text>
@@ -91,13 +95,16 @@ export default function QuizCard({ question, onAnswer, questionNumber, total }: 
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: spacing.xl,
   },
   counter: {
     ...typography.small,
