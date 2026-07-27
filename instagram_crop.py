@@ -90,10 +90,46 @@ def is_instagram_screenshot(img: Image.Image) -> bool:
     return is_ui_color(header_mean) and is_ui_color(footer_mean)
 
 
+def _rejection_reason(img: Image.Image) -> str | None:
+    """
+    For an image that failed is_instagram_screenshot(), decide whether it's
+    close enough to the acceptance boundary to be worth a human's second
+    look, rather than silently discarding a genuine screenshot.  Returns a
+    short reason string, or None if the rejection looks solid.
+    """
+    w, h = img.size
+    if w >= h:
+        return None
+    ratio = h / w
+
+    RATIO_LO, RATIO_HI, RATIO_MARGIN = 1.6, 2.5, 0.1
+    if not (RATIO_LO - RATIO_MARGIN <= ratio <= RATIO_HI + RATIO_MARGIN):
+        return None  # not phone-shaped at all — not worth reviewing
+
+    if not (RATIO_LO <= ratio <= RATIO_HI):
+        return "aspect_ratio_close"
+
+    row_mean, _ = _row_mean_std(img)
+    n = len(row_mean)
+    header_mean = float(row_mean[: int(n * 0.12)].mean())
+    footer_rows = row_mean[int(n * 0.90) :]
+    footer_mean = min(float(footer_rows.mean()), float(np.percentile(footer_rows, 10)))
+
+    BAND = 25
+
+    def close_to_ui_boundary(v: float) -> bool:
+        return (80 - BAND) <= v <= (80 + BAND) or (180 - BAND) <= v <= (180 + BAND)
+
+    if close_to_ui_boundary(header_mean) or close_to_ui_boundary(footer_mean):
+        return "header_footer_brightness_ambiguous"
+
+    return None
+
+
 # ── Crop bounds detection ─────────────────────────────────────────────────────
 
-def _find_post_bounds(img: Image.Image) -> tuple[int, int]:
-    """Return (top_y, bottom_y) of the post image inside the screenshot."""
+def _find_post_bounds(img: Image.Image) -> tuple[int, int, bool]:
+    """Return (top_y, bottom_y, confident) of the post image in the screenshot."""
     w, h = img.size
     row_mean, row_std = _row_mean_std(img)
     n = len(row_mean)
@@ -130,9 +166,10 @@ def _find_post_bounds(img: Image.Image) -> tuple[int, int]:
         blocks.append((zone_top + bstart, zone_top + len(content_zone)))
 
     if not blocks:
-        # Fallback: fixed estimate
+        # Fallback: fixed estimate — no content block was found at all, so
+        # this guess is low-confidence and should be routed to manual review.
         top = int(n * 0.20)
-        return top, min(top + w, h)
+        return top, min(top + w, h), False
 
     # Largest block = post image
     detected_top, detected_bot = max(blocks, key=lambda b: b[1] - b[0])
@@ -142,7 +179,11 @@ def _find_post_bounds(img: Image.Image) -> tuple[int, int]:
     target_heights = [int(w * r) for r in _INSTAGRAM_RATIOS]
     best_h = min(target_heights, key=lambda th: abs(th - detected_h))
 
-    return detected_top, min(detected_top + best_h, h)
+    # If the detected content block is far from any known post aspect ratio,
+    # the snap is likely papering over a bad detection — flag as low confidence.
+    confident = abs(best_h - detected_h) <= 0.12 * w
+
+    return detected_top, min(detected_top + best_h, h), confident
 
 
 # ── Pagination indicator removal ──────────────────────────────────────────────
@@ -166,6 +207,11 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
          on dark (rope, tassels, highlights) lands at other offsets and is
          rejected by this alone.
       4. Among the survivors take the largest by area.
+
+    Returns (mask_or_None, near_miss).  near_miss is True when a blob sat
+    exactly where and at the size a badge should be, but was rejected by one
+    of the shape/edge checks — a signal that a badge may still be present
+    and unremoved, worth a human's second look.
     """
     h, w = arr.shape[:2]
     s = _scale(w)
@@ -193,7 +239,7 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
 
     num_labels, _, stats, _ = cv2.connectedComponentsWithStats(dilated)
     if num_labels < 2:
-        return None
+        return None, False
 
     # Badge geometry, expressed relative to the screenshot width so the same
     # numbers hold for any device scale.  Measured consistently across
@@ -203,6 +249,7 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
     high_lo, high_hi = 0.030 * w, 0.048 * w
 
     best = None
+    geometry_candidates = 0
     for i in range(1, num_labels):
         cx  = int(stats[i, cv2.CC_STAT_LEFT])
         cy  = int(stats[i, cv2.CC_STAT_TOP])
@@ -211,18 +258,23 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
         a   = int(stats[i, cv2.CC_STAT_AREA])
         right = cx + cw
 
+        # Vertical offset and height are the strongest badge-shape signal —
+        # check those first so a blob that matches them but fails a later
+        # test still counts as a "near miss" worth flagging for review.
+        if not (top_lo  <= cy <= top_hi):    continue  # wrong vertical offset
+        if not (high_lo <= ch <= high_hi):   continue  # wrong text size
+        geometry_candidates += 1
+
         if cw < ch:                          continue  # badge reads horizontal
         if a < 500 * s * s:                  continue  # not a tiny speck
         if right < zw * 0.55:                continue  # must be in right half
         if right >= zw - _px(5, s):          continue  # at edge = photo content
-        if not (top_lo  <= cy <= top_hi):    continue  # wrong vertical offset
-        if not (high_lo <= ch <= high_hi):   continue  # wrong text size
 
         if best is None or a > best[4]:
             best = [cx, cy, right, cy + ch, a]
 
     if best is None:
-        return None
+        return None, geometry_candidates > 0
 
     bx1, by1, bx2, by2, _ = best
 
@@ -233,25 +285,28 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
 
     mask = np.zeros((h, w), dtype=np.uint8)
     mask[fy1:fy2, fx1:fx2] = 255
-    return mask
+    return mask, False
 
 
-def _remove_indicator(img: Image.Image) -> Image.Image:
-    """Detect the pagination badge and inpaint it away."""
-    arr  = np.array(img)
-    mask = _detect_indicator_mask(arr)
+def _remove_indicator(img: Image.Image) -> tuple[Image.Image, bool]:
+    """Detect the pagination badge and inpaint it away.
+
+    Returns (image, near_miss) — see _detect_indicator_mask().
+    """
+    arr = np.array(img)
+    mask, near_miss = _detect_indicator_mask(arr)
     if mask is None:
-        return img
+        return img, near_miss
 
     bgr    = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
     result = cv2.inpaint(bgr, mask, inpaintRadius=_px(25, _scale(arr.shape[1])),
                          flags=cv2.INPAINT_TELEA)
-    return Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+    return Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB)), False
 
 
 # ── Corner overlay icon removal ───────────────────────────────────────────────
 
-def _remove_corner_icons(img: Image.Image) -> Image.Image:
+def _remove_corner_icons(img: Image.Image) -> tuple[Image.Image, bool]:
     """
     Detect and inpaint small circular UI icons in the bottom corners of the
     cropped post image (mute button, person/follow icon, etc.).
@@ -261,6 +316,10 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
       circles to find circular blobs, then validate by checking the interior
       mean (medium grey = overlay, not photo content) and std (icon has
       internal detail, pure walls/floors do not).
+
+    Returns (image, near_miss).  near_miss is True when a circle sat at the
+    exact corner inset an icon would, but was rejected by the interior
+    brightness/detail check — worth a human's second look.
     """
     arr = np.array(img)
     h, w = arr.shape[:2]
@@ -284,6 +343,7 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
 
     mask = np.zeros((h, w), dtype=np.uint8)
     found = False
+    near_miss = False
 
     for zy0, zy1, zx0, zx1, _ in corners:
         zone = gray[zy0:zy1, zx0:zx1]
@@ -319,45 +379,78 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
             mean_ = float(pixels.mean())
             std_  = float(pixels.std())
             # Semi-transparent grey icon: medium brightness, has internal detail
-            if not (70 < mean_ < 160 and std_ > 28):
+            if 70 < mean_ < 160 and std_ > 28:
+                cv2.circle(mask, (abs_x, abs_y), r + _px(14, s), 255, -1)
+                found = True
                 continue
 
-            cv2.circle(mask, (abs_x, abs_y), r + _px(14, s), 255, -1)
-            found = True
+            # Right position, wrong look.  Only worth flagging when the
+            # values are CLOSE to the accept thresholds — plain photo
+            # content (walls, fabric, skin) that happens to land in the
+            # corner inset is usually miles off on both axes, not a near
+            # miss, so require both to be within a small margin.
+            near_mean = (70 - 15) <= mean_ <= (160 + 15)
+            near_std  = std_ >= (28 - 6)
+            if near_mean and near_std:
+                near_miss = True
 
     if not found:
-        return img
+        return img, near_miss
 
     bgr    = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
     result = cv2.inpaint(bgr, mask, inpaintRadius=_px(22, s), flags=cv2.INPAINT_TELEA)
-    return Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+    return Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB)), False
 
 
 # ── Crop + save ───────────────────────────────────────────────────────────────
 
-def crop_post_image(img_path: Path, output_dir: Path) -> bool:
+def crop_post_image(img_path: Path, cropped_dir: Path, review_dir: Path) -> dict:
+    """
+    Crop the post image and strip known overlays.
+
+    Confident results are saved to cropped_dir.  Anything the heuristics
+    are unsure about — a fallback crop, an aspect-ratio snap that doesn't
+    fit, a badge- or icon-shaped blob that got rejected on a technicality —
+    is saved to review_dir instead and tagged with the reason, so a human
+    checks it before any further (token-consuming) processing is considered.
+    """
+    reasons: list[str] = []
     try:
         img = Image.open(img_path).convert("RGB")
         w, h = img.size
 
-        top, bottom = _find_post_bounds(img)
+        top, bottom, bounds_confident = _find_post_bounds(img)
+        if not bounds_confident:
+            reasons.append("crop_bounds_uncertain")
         if bottom <= top:
-            print(f"  Could not determine post bounds for {img_path.name}")
-            return False
+            reasons.append("crop_bounds_failed")
+            dest = review_dir / img_path.name
+            img.save(dest)
+            print(f"  Review : {img_path.name}  ({','.join(reasons)})")
+            return {"file": img_path.name, "status": "review", "reasons": reasons, "out": str(dest)}
 
         cropped = img.crop((0, top, w, bottom))
-        cropped = _remove_indicator(cropped)
-        cropped = _remove_corner_icons(cropped)
+        cropped, badge_near_miss = _remove_indicator(cropped)
+        if badge_near_miss:
+            reasons.append("possible_leftover_badge")
+        cropped, icon_near_miss = _remove_corner_icons(cropped)
+        if icon_near_miss:
+            reasons.append("possible_leftover_icon")
 
         out_name = f"{img_path.stem}_cropped{img_path.suffix}"
-        out_path = output_dir / out_name
-        cropped.save(out_path)
+        dest = (review_dir if reasons else cropped_dir) / out_name
+        cropped.save(dest)
+
+        if reasons:
+            print(f"  Review : {out_name}  ({','.join(reasons)})")
+            return {"file": img_path.name, "status": "review", "reasons": reasons, "out": str(dest)}
+
         print(f"  Saved  : {out_name}  ({w}x{bottom - top}px, y={top}–{bottom})")
-        return True
+        return {"file": img_path.name, "status": "ok", "reasons": [], "out": str(dest)}
 
     except Exception as exc:
         print(f"  Error  : {exc}")
-        return False
+        return {"file": img_path.name, "status": "error", "reasons": [f"error:{exc}"], "out": None}
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -369,7 +462,9 @@ def process_folder(input_folder: str, output_folder: str | None = None) -> None:
         sys.exit(1)
 
     out_path = Path(output_folder) if output_folder else input_path / "cropped"
+    review_path = out_path.parent / "review"
     out_path.mkdir(parents=True, exist_ok=True)
+    review_path.mkdir(parents=True, exist_ok=True)
 
     exts = {".jpg", ".jpeg", ".png", ".webp"}
     images = sorted(
@@ -383,7 +478,9 @@ def process_folder(input_folder: str, output_folder: str | None = None) -> None:
 
     print(f"Scanning {len(images)} image(s) in '{input_path.name}/'...\n")
 
-    ig_count = cropped_count = 0
+    ig_count = ok_count = 0
+    review_records: list[dict] = []
+
     for img_path in images:
         print(f"[{img_path.name}]")
         try:
@@ -395,16 +492,49 @@ def process_folder(input_folder: str, output_folder: str | None = None) -> None:
         if is_instagram_screenshot(img):
             print("  -> Instagram screenshot detected")
             ig_count += 1
-            if crop_post_image(img_path, out_path):
-                cropped_count += 1
+            record = crop_post_image(img_path, out_path, review_path)
+            if record["status"] == "ok":
+                ok_count += 1
+            else:
+                review_records.append(record)
         else:
-            print("  -> Not an Instagram screenshot, skipped")
+            reason = _rejection_reason(img)
+            if reason is None:
+                print("  -> Not an Instagram screenshot, skipped")
+            else:
+                dest = review_path / img_path.name
+                img.convert("RGB").save(dest)
+                print(f"  -> Not classified as Instagram, but close call ({reason}) -> review/")
+                review_records.append(
+                    {"file": img_path.name, "status": "review", "reasons": [reason], "out": str(dest)}
+                )
 
     print(
         f"\nDone: {ig_count} Instagram screenshot(s) found, "
-        f"{cropped_count} image(s) cropped."
+        f"{ok_count} image(s) cropped cleanly."
     )
-    print(f"Output: {out_path}")
+    print(f"Cropped output: {out_path}")
+
+    if review_records:
+        manifest_path = review_path / "review_manifest.txt"
+        with open(manifest_path, "w", encoding="utf-8") as f:
+            f.write("Images needing manual review before any further (AI-assisted) processing\n")
+            f.write("=" * 74 + "\n\n")
+            for r in review_records:
+                f.write(f"{r['file']}\n")
+                f.write(f"  status : {r['status']}\n")
+                f.write(f"  reasons: {', '.join(r['reasons']) if r['reasons'] else '(none)'}\n")
+                f.write(f"  saved  : {r['out'] or '(not saved)'}\n\n")
+
+        print(f"\n{len(review_records)} image(s) need your review -> {review_path}")
+        print(f"See {manifest_path.name} for reasons.")
+        print(
+            "\nCheck these yourself first. Only ask Claude to look at specific "
+            "images from this folder afterward if you still need help with "
+            "them — that step spends tokens, this one didn't."
+        )
+    else:
+        print("\nNo images need manual review.")
 
 
 if __name__ == "__main__":
