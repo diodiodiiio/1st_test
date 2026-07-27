@@ -124,7 +124,7 @@ def _find_post_bounds(img: Image.Image) -> tuple[int, int]:
 
 # ── Pagination indicator removal ──────────────────────────────────────────────
 
-def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 20) -> np.ndarray | None:
+def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray | None:
     """
     Locate the 'N/M' pagination badge in the top-right of the post image.
     Returns a binary inpainting mask, or None if no badge is found.
@@ -174,6 +174,7 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 20) -> np.ndarray |
 
         if cw < ch:                continue    # horizontal pill only
         if (cx + cw) < zw * 0.55: continue    # must be in the right half
+        if (cx + cw) >= zw - 5:   continue    # at zone edge = photo content, not badge
         if a < 500:                continue    # not a tiny speck
 
         right = cx + cw
