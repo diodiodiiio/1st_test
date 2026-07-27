@@ -27,6 +27,23 @@ _INSTAGRAM_RATIOS = [
 ]
 
 
+# Width the pixel-valued constants below were tuned against (iPhone @3x).
+_REFERENCE_WIDTH = 1290
+
+
+def _scale(width: int) -> float:
+    """Factor mapping a reference-width constant onto this screenshot."""
+    return width / _REFERENCE_WIDTH
+
+
+def _px(value: float, s: float, *, odd: bool = False) -> int:
+    """Scale a reference-width pixel constant, keeping it usable as a size."""
+    v = max(1, int(round(value * s)))
+    if odd and v % 2 == 0:
+        v += 1
+    return v
+
+
 # ── Per-row statistics ────────────────────────────────────────────────────────
 
 def _row_mean_std(img: Image.Image) -> tuple[np.ndarray, np.ndarray]:
@@ -151,6 +168,8 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
       4. Among the survivors take the largest by area.
     """
     h, w = arr.shape[:2]
+    s = _scale(w)
+    expand_px = _px(expand_px, s)
 
     # Search zone: top 13 %, right 30 %
     zy = max(1, int(h * 0.13))
@@ -161,13 +180,15 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
     gray = cv2.cvtColor(zone, cv2.COLOR_RGB2GRAY).astype(np.float32)
 
     # Local neighbourhood mean — dark here means badge background, not open photo
-    local_mean = cv2.blur(gray, (35, 35))
+    blur_k = _px(35, s)
+    local_mean = cv2.blur(gray, (blur_k, blur_k))
 
     # White text sitting on a dark badge background
     text_mask = ((gray > 210) & (local_mean < 160)).astype(np.uint8) * 255
 
     # Dilate to connect adjacent glyphs into a single blob
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
+    dil_k = _px(15, s)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (dil_k, dil_k))
     dilated = cv2.dilate(text_mask, kernel)
 
     num_labels, _, stats, _ = cv2.connectedComponentsWithStats(dilated)
@@ -191,9 +212,9 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
         right = cx + cw
 
         if cw < ch:                          continue  # badge reads horizontal
-        if a < 500:                          continue  # not a tiny speck
+        if a < 500 * s * s:                  continue  # not a tiny speck
         if right < zw * 0.55:                continue  # must be in right half
-        if right >= zw - 5:                  continue  # at edge = photo content
+        if right >= zw - _px(5, s):          continue  # at edge = photo content
         if not (top_lo  <= cy <= top_hi):    continue  # wrong vertical offset
         if not (high_lo <= ch <= high_hi):   continue  # wrong text size
 
@@ -223,7 +244,8 @@ def _remove_indicator(img: Image.Image) -> Image.Image:
         return img
 
     bgr    = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
-    result = cv2.inpaint(bgr, mask, inpaintRadius=25, flags=cv2.INPAINT_TELEA)
+    result = cv2.inpaint(bgr, mask, inpaintRadius=_px(25, _scale(arr.shape[1])),
+                         flags=cv2.INPAINT_TELEA)
     return Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
 
 
@@ -235,19 +257,20 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
     cropped post image (mute button, person/follow icon, etc.).
 
     Strategy:
-      Search only the bottom 12% of height within 140px of each side edge.
-      Use Hough circles to find circular blobs, then validate by checking
-      the interior mean (medium grey = overlay, not photo content) and std
-      (icon has internal detail, pure walls/floors do not).
+      Search only the bottom 12% of height near each side edge.  Use Hough
+      circles to find circular blobs, then validate by checking the interior
+      mean (medium grey = overlay, not photo content) and std (icon has
+      internal detail, pure walls/floors do not).
     """
     arr = np.array(img)
     h, w = arr.shape[:2]
+    s = _scale(w)
     gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
 
     ZONE_H = int(h * 0.12)
-    ZONE_W = 140
-    min_r = max(24, int(w * 0.026))
-    max_r = max(42, int(w * 0.037))
+    ZONE_W = _px(140, s)
+    min_r = _px(34, s)
+    max_r = _px(48, s)
 
     # Instagram anchors these buttons at a fixed inset from the corner.
     # Anything closer to (or further from) the edge is photo content.
@@ -265,7 +288,7 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
     for zy0, zy1, zx0, zx1, _ in corners:
         zone = gray[zy0:zy1, zx0:zx1]
         circles = cv2.HoughCircles(
-            zone, cv2.HOUGH_GRADIENT, dp=1, minDist=40,
+            zone, cv2.HOUGH_GRADIENT, dp=1, minDist=_px(40, s),
             param1=40, param2=15,
             minRadius=min_r, maxRadius=max_r,
         )
@@ -290,7 +313,7 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
             cm = np.zeros_like(patch)
             cv2.circle(cm, (abs_x - x0p, abs_y - y0p), r, 1, -1)
             pixels = patch[cm == 1]
-            if len(pixels) < 80:
+            if len(pixels) < 80 * s * s:
                 continue
 
             mean_ = float(pixels.mean())
@@ -299,14 +322,14 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
             if not (70 < mean_ < 160 and std_ > 28):
                 continue
 
-            cv2.circle(mask, (abs_x, abs_y), r + 14, 255, -1)
+            cv2.circle(mask, (abs_x, abs_y), r + _px(14, s), 255, -1)
             found = True
 
     if not found:
         return img
 
     bgr    = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
-    result = cv2.inpaint(bgr, mask, inpaintRadius=22, flags=cv2.INPAINT_TELEA)
+    result = cv2.inpaint(bgr, mask, inpaintRadius=_px(22, s), flags=cv2.INPAINT_TELEA)
     return Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
 
 
