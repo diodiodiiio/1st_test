@@ -209,6 +209,76 @@ def _remove_indicator(img: Image.Image) -> Image.Image:
     return Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
 
 
+# ── Corner overlay icon removal ───────────────────────────────────────────────
+
+def _remove_corner_icons(img: Image.Image) -> Image.Image:
+    """
+    Detect and inpaint small circular UI icons in the bottom corners of the
+    cropped post image (mute button, person/follow icon, etc.).
+
+    Strategy:
+      Search only the bottom 12% of height within 140px of each side edge.
+      Use Hough circles to find circular blobs, then validate by checking
+      the interior mean (medium grey = overlay, not photo content) and std
+      (icon has internal detail, pure walls/floors do not).
+    """
+    arr = np.array(img)
+    h, w = arr.shape[:2]
+    gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+
+    ZONE_H = int(h * 0.12)
+    ZONE_W = 140
+    min_r = max(24, int(w * 0.025))
+    max_r = max(46, int(w * 0.040))
+
+    corners = [
+        (h - ZONE_H, h, 0,         ZONE_W, "BL"),
+        (h - ZONE_H, h, w - ZONE_W, w,     "BR"),
+    ]
+
+    mask = np.zeros((h, w), dtype=np.uint8)
+    found = False
+
+    for zy0, zy1, zx0, zx1, _ in corners:
+        zone = gray[zy0:zy1, zx0:zx1]
+        circles = cv2.HoughCircles(
+            zone, cv2.HOUGH_GRADIENT, dp=1, minDist=40,
+            param1=40, param2=15,
+            minRadius=min_r, maxRadius=max_r,
+        )
+        if circles is None:
+            continue
+
+        for (cx, cy, r) in circles[0]:
+            cx, cy, r = int(cx), int(cy), int(r)
+            abs_x, abs_y = zx0 + cx, zy0 + cy
+
+            y0p = max(0, abs_y - r);  y1p = min(h, abs_y + r + 1)
+            x0p = max(0, abs_x - r);  x1p = min(w, abs_x + r + 1)
+            patch = gray[y0p:y1p, x0p:x1p]
+            cm = np.zeros_like(patch)
+            cv2.circle(cm, (abs_x - x0p, abs_y - y0p), r, 1, -1)
+            pixels = patch[cm == 1]
+            if len(pixels) < 80:
+                continue
+
+            mean_ = float(pixels.mean())
+            std_  = float(pixels.std())
+            # Semi-transparent grey icon: medium brightness, has internal detail
+            if not (70 < mean_ < 190 and std_ > 28):
+                continue
+
+            cv2.circle(mask, (abs_x, abs_y), r + 14, 255, -1)
+            found = True
+
+    if not found:
+        return img
+
+    bgr    = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
+    result = cv2.inpaint(bgr, mask, inpaintRadius=22, flags=cv2.INPAINT_TELEA)
+    return Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+
+
 # ── Crop + save ───────────────────────────────────────────────────────────────
 
 def crop_post_image(img_path: Path, output_dir: Path) -> bool:
@@ -223,6 +293,7 @@ def crop_post_image(img_path: Path, output_dir: Path) -> bool:
 
         cropped = img.crop((0, top, w, bottom))
         cropped = _remove_indicator(cropped)
+        cropped = _remove_corner_icons(cropped)
 
         out_name = f"{img_path.stem}_cropped{img_path.suffix}"
         out_path = output_dir / out_name
