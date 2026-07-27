@@ -56,8 +56,14 @@ def is_instagram_screenshot(img: Image.Image) -> bool:
     n = len(row_mean)
 
     # Evaluate header and footer brightness
-    header_mean = row_mean[: int(n * 0.12)].mean()
-    footer_mean = row_mean[int(n * 0.90) :].mean()
+    header_mean = float(row_mean[: int(n * 0.12)].mean())
+
+    # For the footer, use the 10th-percentile row mean alongside the overall
+    # mean.  When a next-post preview or caption sits inside the bottom 10%,
+    # the mean is pulled into the ambiguous 80-180 range even though the nav
+    # bar rows are clearly dark (<80).  min() surfaces that dark nav bar.
+    footer_rows = row_mean[int(n * 0.90) :]
+    footer_mean = min(float(footer_rows.mean()), float(np.percentile(footer_rows, 10)))
 
     # Light theme: both regions > 180.  Dark theme: both < 80.
     # Mid-grey (80–180) is ambiguous → not Instagram
@@ -136,8 +142,13 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
          text on dark badge background" vs white walls/rope with a bright
          local neighbourhood.
       2. Dilate to merge adjacent glyphs into one blob.
-      3. Pick the RIGHTMOST blob that is wider than tall — the badge is
-         always right-aligned in the top-right corner.
+      3. Keep only blobs whose vertical placement and height match the
+         badge.  Instagram pins the badge a fixed distance below the top of
+         the post image and renders it at a fixed font size, so both scale
+         with the screenshot width.  Photo content that happens to be white
+         on dark (rope, tassels, highlights) lands at other offsets and is
+         rejected by this alone.
+      4. Among the survivors take the largest by area.
     """
     h, w = arr.shape[:2]
 
@@ -163,34 +174,41 @@ def _detect_indicator_mask(arr: np.ndarray, expand_px: int = 50) -> np.ndarray |
     if num_labels < 2:
         return None
 
+    # Badge geometry, expressed relative to the screenshot width so the same
+    # numbers hold for any device scale.  Measured consistently across
+    # samples: the dilated text block starts ~4.7 % of the width below the
+    # top of the post and stands ~3.6 % of the width tall.
+    top_lo,  top_hi  = 0.030 * w, 0.070 * w
+    high_lo, high_hi = 0.030 * w, 0.048 * w
+
     best = None
-    best_right = -1
     for i in range(1, num_labels):
         cx  = int(stats[i, cv2.CC_STAT_LEFT])
         cy  = int(stats[i, cv2.CC_STAT_TOP])
         cw  = int(stats[i, cv2.CC_STAT_WIDTH])
         ch  = int(stats[i, cv2.CC_STAT_HEIGHT])
         a   = int(stats[i, cv2.CC_STAT_AREA])
-
-        if cw < ch:                continue    # horizontal pill only
-        if (cx + cw) < zw * 0.55: continue    # must be in the right half
-        if (cx + cw) >= zw - 5:   continue    # at zone edge = photo content, not badge
-        if a < 500:                continue    # not a tiny speck
-
         right = cx + cw
-        if right > best_right:
-            best_right = right
-            best = (cx, cy, cw, ch)
+
+        if cw < ch:                          continue  # badge reads horizontal
+        if a < 500:                          continue  # not a tiny speck
+        if right < zw * 0.55:                continue  # must be in right half
+        if right >= zw - 5:                  continue  # at edge = photo content
+        if not (top_lo  <= cy <= top_hi):    continue  # wrong vertical offset
+        if not (high_lo <= ch <= high_hi):   continue  # wrong text size
+
+        if best is None or a > best[4]:
+            best = [cx, cy, right, cy + ch, a]
 
     if best is None:
         return None
 
-    cx, cy, cw_b, ch_b = best
+    bx1, by1, bx2, by2, _ = best
 
-    fy1 = max(0, cy - expand_px)
-    fy2 = min(h, cy + ch_b + expand_px)
-    fx1 = max(0, zx + cx - expand_px)
-    fx2 = min(w, zx + cx + cw_b + expand_px)
+    fy1 = max(0, by1 - expand_px)
+    fy2 = min(h, by2 + expand_px)
+    fx1 = max(0, zx + bx1 - expand_px)
+    fx2 = min(w, zx + bx2 + expand_px)
 
     mask = np.zeros((h, w), dtype=np.uint8)
     mask[fy1:fy2, fx1:fx2] = 255
@@ -228,8 +246,13 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
 
     ZONE_H = int(h * 0.12)
     ZONE_W = 140
-    min_r = max(24, int(w * 0.025))
-    max_r = max(46, int(w * 0.040))
+    min_r = max(24, int(w * 0.026))
+    max_r = max(42, int(w * 0.037))
+
+    # Instagram anchors these buttons at a fixed inset from the corner.
+    # Anything closer to (or further from) the edge is photo content.
+    inset_x = (0.040 * w, 0.085 * w)
+    inset_y = (0.035 * h, 0.075 * h)
 
     corners = [
         (h - ZONE_H, h, 0,         ZONE_W, "BL"),
@@ -253,6 +276,14 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
             cx, cy, r = int(cx), int(cy), int(r)
             abs_x, abs_y = zx0 + cx, zy0 + cy
 
+            # Must sit at the expected inset from the nearest corner
+            dx = abs_x if zx0 == 0 else w - abs_x
+            dy = h - abs_y
+            if not (inset_x[0] <= dx <= inset_x[1]):
+                continue
+            if not (inset_y[0] <= dy <= inset_y[1]):
+                continue
+
             y0p = max(0, abs_y - r);  y1p = min(h, abs_y + r + 1)
             x0p = max(0, abs_x - r);  x1p = min(w, abs_x + r + 1)
             patch = gray[y0p:y1p, x0p:x1p]
@@ -265,7 +296,7 @@ def _remove_corner_icons(img: Image.Image) -> Image.Image:
             mean_ = float(pixels.mean())
             std_  = float(pixels.std())
             # Semi-transparent grey icon: medium brightness, has internal detail
-            if not (70 < mean_ < 190 and std_ > 28):
+            if not (70 < mean_ < 160 and std_ > 28):
                 continue
 
             cv2.circle(mask, (abs_x, abs_y), r + 14, 255, -1)
