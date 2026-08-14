@@ -4,6 +4,8 @@ import { ProgressData } from '../data/types';
 
 interface ProgressContextValue extends ProgressData {
   completeLesson: (lessonId: string, xpEarned: number) => Promise<void>;
+  /** カリキュラム外の学習（My単語帳など）でXPとストリークだけ更新する */
+  addXP: (xpEarned: number) => Promise<void>;
   isLessonCompleted: (lessonId: string) => boolean;
   getLevel: () => { level: number; title: string; nextXP: number };
 }
@@ -49,12 +51,13 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     } catch (_) {}
   };
 
-  const completeLesson = async (lessonId: string, xpEarned: number) => {
+  /** 今日学習したことを反映した streak / lastStudyDate を返す */
+  const withTodaysStudy = (xpEarned: number) => {
     const today = new Date().toDateString();
-    const lastDate = progress.lastStudyDate;
     const yesterday = new Date(Date.now() - 86400000).toDateString();
+    const lastDate = progress.lastStudyDate;
 
-    let newStreak = progress.streak;
+    let newStreak: number;
     if (lastDate === today) {
       newStreak = progress.streak;
     } else if (lastDate === yesterday) {
@@ -63,13 +66,29 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       newStreak = 1;
     }
 
-    const newProgress: ProgressData = {
-      completedLessons: progress.completedLessons.includes(lessonId)
-        ? progress.completedLessons
-        : [...progress.completedLessons, lessonId],
+    return {
       totalXP: progress.totalXP + xpEarned,
       streak: newStreak,
       lastStudyDate: today,
+    };
+  };
+
+  const completeLesson = async (lessonId: string, xpEarned: number) => {
+    const newProgress: ProgressData = {
+      ...withTodaysStudy(xpEarned),
+      completedLessons: progress.completedLessons.includes(lessonId)
+        ? progress.completedLessons
+        : [...progress.completedLessons, lessonId],
+    };
+
+    setProgress(newProgress);
+    await saveProgress(newProgress);
+  };
+
+  const addXP = async (xpEarned: number) => {
+    const newProgress: ProgressData = {
+      ...withTodaysStudy(xpEarned),
+      completedLessons: progress.completedLessons,
     };
 
     setProgress(newProgress);
@@ -91,7 +110,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ProgressContext.Provider
-      value={{ ...progress, completeLesson, isLessonCompleted, getLevel }}
+      value={{ ...progress, completeLesson, addXP, isLessonCompleted, getLevel }}
     >
       {children}
     </ProgressContext.Provider>
